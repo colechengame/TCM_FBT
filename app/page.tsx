@@ -1,5 +1,5 @@
 'use client';
-
+import Card from './Card';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import {
