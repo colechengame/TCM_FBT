@@ -2,6 +2,7 @@
 import Card from './Card';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import Card from './Card'; // 從 Card.tsx 引入 Card 元件
 import {
   Chart as ChartJS,
   CategoryScale,
