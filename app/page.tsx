@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo, useCallback, useRef, ReactNode } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, JSX, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal } from 'react';
 import dynamic from 'next/dynamic';
 import {
   Chart as ChartJS,
@@ -90,55 +90,6 @@ interface AnalysisResult {
   successRate: number; // calculated based on overall improvements
 }
 
-interface DateRange {
-  startDate: string;
-  type: string;
-  days: number;
-}
-
-interface CardProps {
-  title?: string | ReactNode;
-  children: ReactNode;
-  className?: string;
-}
-
-interface MemberInfoCardProps {
-  fiveTypeData: FiveTypeRecord[];
-  historicalFiveTypeData: HistoricalFiveTypeRecord[];
-}
-
-interface DataAnalysisCardProps {
-  weightRecords: WeightRecord[];
-  dateRange: DateRange;
-  onDateRangeChange: (newRange: any) => void;
-}
-
-interface ProgressIndicatorProps {
-  label: string;
-  value: number;
-  targetValue: number;
-  color: string;
-  unit?: string;
-  reverse?: boolean;
-}
-
-interface TabNavigationProps {
-  tabs: Array<{
-    id: string;
-    label: string;
-    icon?: ReactNode;
-  }>;
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
-}
-
-interface DateFilterButtonProps {
-  days: number;
-  label: string;
-  currentStartDate: string;
-  onClick: (days: number) => void;
-}
-
 // Theme colors with dark mode support
 const theme = {
   light: {
@@ -194,7 +145,13 @@ const theme = {
 };
 
 // Component for reusable styled cards
-const Card = ({ title, children, className = '' }: CardProps) => {
+interface CardProps {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Card: React.FC<CardProps> = ({ title, children, className = '' }) => {
   const [isHovered, setIsHovered] = useState(false);
   const colors = theme.light;
   
@@ -208,17 +165,17 @@ const Card = ({ title, children, className = '' }: CardProps) => {
     boxShadow: isHovered ? `0 6px 12px ${colors.shadow}` : `0 4px 8px ${colors.shadow}`,
     marginBottom: '20px',
     transition: 'box-shadow 0.3s ease-in-out',
-  } as React.CSSProperties;
+  };
   
-  const titleStyle = {
+  const titleStyle: React.CSSProperties = {
     textAlign: 'center',
     marginBottom: '20px',
     paddingBottom: '10px',
     borderBottom: `3px solid ${colors.primary}`,
     color: colors.primary,
     fontSize: '1.5rem',
-    fontWeight: 'bold',
-  } as React.CSSProperties;
+    fontWeight: 'normal',
+  };
   
   return (
     <div 
@@ -234,26 +191,26 @@ const Card = ({ title, children, className = '' }: CardProps) => {
 };
 
 // Component for member information
-const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCardProps) => {
+const MemberInfoCard: React.FC<{ fiveTypeData: FiveTypeRecord[], historicalFiveTypeData: HistoricalFiveTypeRecord[] }> = ({ fiveTypeData, historicalFiveTypeData }) => {
   const [fiveTypeView, setFiveTypeView] = useState<'current' | 'historical'>('current');
   const colors = theme.light;
   
   // Enhanced five type data with colors
   const enhancedFiveTypeData = useMemo(() => {
-    return fiveTypeData.map((item, index) => ({
+    return fiveTypeData.map((item: FiveTypeRecord, index: number) => ({
       ...item,
       color: colors.chartColors[index % colors.chartColors.length],
     }));
-  }, [fiveTypeData, colors.chartColors]);
+  }, [fiveTypeData]);
 
   // Chart options for the five type history line chart
   const lineChartFiveTypeData = {
-    labels: historicalFiveTypeData.map((item) => item.date),
+    labels: historicalFiveTypeData.map((item: { date: any; }) => item.date),
     datasets: Object.keys(historicalFiveTypeData[0])
       .filter(key => key !== 'date')
       .map((key, index) => ({
         label: key,
-        data: historicalFiveTypeData.map((item) => item[key]),
+        data: historicalFiveTypeData.map((item: { [x: string]: any; }) => item[key]),
         borderColor: colors.chartColors[index % colors.chartColors.length],
         backgroundColor: colors.chartColors[index % colors.chartColors.length].replace('0.6', '0.1'),
         fill: false,
@@ -278,14 +235,14 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
     fontSize: '1rem',
     border: 'none',
     outline: 'none',
-  } as React.CSSProperties;
+  };
   
   const labelStyle = {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '10px',
     fontSize: '1rem',
-  } as React.CSSProperties;
+  };
   
   return (
     <Card title="會員資訊卡片">
@@ -367,7 +324,7 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
                 borderRadius: '8px',
                 boxShadow: 'inset 0 0 5px rgba(0,0,0,0.1)'
               }}>
-                {enhancedFiveTypeData.map((item, index) => (
+                {enhancedFiveTypeData.map((item: { color: any; subject: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; score: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }, index: Key | null | undefined) => (
                   <div key={index} style={labelStyle}>
                     <div style={{ 
                       width: '15px', 
@@ -378,7 +335,7 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
                     }}></div>
                     <div style={{ flex: 1 }}>{item.subject}</div>
                     <div style={{ 
-                      fontWeight: 'bold',
+                      fontWeight: 'normal',
                       backgroundColor: colors.light,
                       padding: '3px 8px',
                       borderRadius: '12px',
@@ -396,19 +353,19 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
                 overflowY: 'auto',
                 padding: '5px'
               }}>
-                {historicalFiveTypeData.map((record, index) => (
+                {historicalFiveTypeData.map((record: HistoricalFiveTypeRecord, index: Key | null | undefined) => (
                   <div
                     key={index}
                     style={{
                       marginBottom: '15px',
-                      backgroundColor: index % 2 === 0 ? '#f8f9fa' : '#ffffff',
+                      backgroundColor: typeof index === 'number' && index % 2 === 0 ? '#f8f9fa' : '#ffffff',
                       padding: '10px',
                       borderRadius: '8px',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                     }}
                   >
                     <div style={{
-                      fontWeight: 'bold',
+                      fontWeight: 'normal',
                       borderBottom: '1px solid #dee2e6',
                       paddingBottom: '5px',
                       marginBottom: '10px'
@@ -492,14 +449,14 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
                       title: { 
                         display: true, 
                         text: '五型體質歷史數據趨勢', 
-                        font: { size: 16, weight: 'bold' },
+                        font: { size: 16, weight: 'normal' },
                         padding: { bottom: 15 }
                       },
                       tooltip: {
                         backgroundColor: 'rgba(255,255,255,0.95)',
                         titleColor: colors.dark,
                         bodyColor: colors.dark,
-                        titleFont: { weight: 'bold' },
+                        titleFont: { weight: 'normal' },
                         bodyFont: { size: 13 },
                         padding: 10,
                         cornerRadius: 6,
@@ -507,6 +464,11 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
                         borderWidth: 1,
                         caretSize: 8,
                         displayColors: true,
+                        callbacks: {
+                          label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.y}`;
+                          }
+                        }
                       }
                     },
                     scales: {
@@ -537,11 +499,20 @@ const MemberInfoCard = ({ fiveTypeData, historicalFiveTypeData }: MemberInfoCard
 };
 
 // Data analysis component with enhanced insights
-const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataAnalysisCardProps) => {
+const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { startDate: string, type: 'all' | 'days' | 'custom', days: number }, onDateRangeChange: (range: { startDate: string, type: 'all' | 'days' | 'custom', days: number }) => void }> = ({ weightRecords, dateRange, onDateRangeChange }) => {
   const colors = theme.light;
   
   // Progress indicator component for showing changes
-  const ProgressIndicator = ({ label, value, targetValue, color, unit = '', reverse = false }: ProgressIndicatorProps) => {
+  interface ProgressIndicatorProps {
+    label: string;
+    value: number;
+    targetValue: number;
+    color: string;
+    unit?: string;
+    reverse?: boolean;
+  }
+
+  const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ label, value, targetValue, color, unit = '', reverse = false }) => {
     const percentage = targetValue ? (value / targetValue) * 100 : 0;
     const isPositive = reverse ? value <= 0 : value >= 0;
     
@@ -550,7 +521,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
           <span>{label}</span>
           <span style={{ 
-            fontWeight: 'bold',
+            fontWeight: 'normal',
             color: isPositive ? colors.success : colors.danger
           }}>
             {value > 0 ? '+' : ''}{value}{unit}
@@ -709,7 +680,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
         }
       ],
     };
-  }, [analysisResults, colors]);
+  }, [analysisResults]);
   
   // Enhanced chart options
   const analysisChartOptions = {
@@ -717,9 +688,9 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
-          font: { size: 14, weight: 'bold' as const },
+          font: { size: 14, weight: 'normal' },
           usePointStyle: true,
           padding: 20,
         },
@@ -727,7 +698,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
       title: { 
         display: true, 
         text: '體重與體組成變化分析', 
-        font: { size: 18, weight: 'bold' as const },
+        font: { size: 18, weight: 'normal' },
         padding: { bottom: 20 },
       },
       tooltip: {
@@ -735,13 +706,24 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: colors.dark,
         bodyColor: colors.dark,
-        titleFont: { weight: 'bold' as const },
+        titleFont: { weight: 'normal' },
         bodyFont: { size: 14 },
         padding: 12,
         cornerRadius: 6,
         borderColor: colors.border,
         borderWidth: 1,
+        boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
         displayColors: true,
+        callbacks: {
+          label: function(context: { dataset: { label: string; }; parsed: { y: number; }; }) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            label += context.parsed.y.toFixed(1);
+            return label;
+          }
+        }
       },
     },
     scales: {
@@ -759,7 +741,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
       x: {
         grid: { display: false },
         ticks: {
-          font: { size: 14, weight: 'bold' as const },
+          font: { size: 14, weight: 'normal' },
           padding: 10,
         },
       },
@@ -780,11 +762,15 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
         borderWidth: 3,
         hoverBorderWidth: 4,
       }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeInOutQuad' as 'easeInOutQuad'
     }
   };
   
-  // Button component for date filtering
-  const DateFilterButton = ({ days, label, currentStartDate, onClick }: DateFilterButtonProps) => {
+  // Enhanced button component for date filtering
+  const DateFilterButton: React.FC<{ days: number, label: string, currentStartDate: string, onClick: (days: number) => void }> = ({ days, label, currentStartDate, onClick }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isPressed, setIsPressed] = useState(false);
     
@@ -807,10 +793,11 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
       position: 'relative',
       overflow: 'hidden',
       zIndex: 1,
-    } as React.CSSProperties;
+    };
+    
     return (
       <button
-        style={style}
+        style={style as React.CSSProperties}
         onClick={() => onClick(days)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
@@ -838,7 +825,86 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
     );
   };
   
-  // Custom date filter input for precise date selection
+  // Tab 組件 - 用於顯示頁內分頁
+interface Tab {
+  id: string;
+  icon?: React.ReactNode;
+  label: string;
+}
+
+interface TabNavigationProps {
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (id: string) => void;
+}
+
+const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => {
+  return (
+    <div style={{
+      display: 'flex',
+      borderBottom: '1px solid #dee2e6',
+      marginBottom: '20px',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {tabs.map((tab: Tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onTabChange(tab.id)}
+          style={{
+            padding: '12px 20px',
+            borderRadius: '4px 4px 0 0',
+            backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+            color: activeTab === tab.id ? '#007bff' : '#495057',
+            border: 'none',
+            borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: activeTab === tab.id ? '600' : '400',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            zIndex: 1,
+            minWidth: '120px',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
+          onMouseOver={(e) => {
+            if (activeTab !== tab.id) {
+              e.currentTarget.style.backgroundColor = '#f8f9fa';
+              e.currentTarget.style.color = '#007bff';
+            }
+          }}
+          onMouseOut={(e) => {
+            if (activeTab !== tab.id) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#495057';
+            }
+          }}
+        >
+          {tab.icon && (
+            <span>{tab.icon}</span>
+          )}
+          {tab.label}
+        </button>
+      ))}
+      
+      {/* 底部動畫指示器 */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        height: '3px',
+        backgroundColor: '#007bff',
+        transition: 'all 0.3s ease-in-out',
+        zIndex: 0
+      }}></div>
+    </div>
+  );
+};
+  
+  // Date filter and days selection inputs
   const [customDate, setCustomDate] = useState('');
   const [customDays, setCustomDays] = useState('');
   
@@ -868,7 +934,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
               days={option.days}
               label={option.label}
               currentStartDate={dateRange.days === option.days ? option.days.toString() : ''}
-              onClick={(days) => {
+              onClick={(days: number) => {
                 const today = new Date();
                 const startDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
                 onDateRangeChange({
@@ -947,7 +1013,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                   justifyContent: 'center',
                   color: 'white',
                   fontSize: '12px',
-                  fontWeight: 'bold'
+                  fontWeight: 'normal'
                 }}>1</div>
                 <label htmlFor="customDateInput" style={{ 
                   fontWeight: '500',
@@ -984,7 +1050,8 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                     if (customDate) {
                       onDateRangeChange({
                         startDate: customDate,
-                        type: 'custom'
+                        type: 'custom',
+                        days: 0
                       });
                       setCustomDays('');
                     }
@@ -1047,7 +1114,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                   justifyContent: 'center',
                   color: 'white',
                   fontSize: '12px',
-                  fontWeight: 'bold'
+                  fontWeight: 'normal'
                 }}>2</div>
                 <label htmlFor="customDaysInput" style={{ 
                   fontWeight: '500',
@@ -1269,15 +1336,15 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
               <div style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>分析開始日期</span>
-                  <span style={{ fontWeight: 'bold' }}>{analysisResults.startDate}</span>
+                  <span style={{ fontWeight: 'normal' }}>{analysisResults.startDate}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>分析結束日期</span>
-                  <span style={{ fontWeight: 'bold' }}>{analysisResults.endDate}</span>
+                  <span style={{ fontWeight: 'normal' }}>{analysisResults.endDate}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>間隔天數</span>
-                  <span style={{ fontWeight: 'bold' }}>{analysisResults.daysBetween} 天</span>
+                  <span style={{ fontWeight: 'normal' }}>{analysisResults.daysBetween} 天</span>
                 </div>
               </div>
               
@@ -1295,16 +1362,16 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
               <div style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>初始體重</span>
-                  <span style={{ fontWeight: 'bold' }}>{analysisResults.startWeight} kg</span>
+                  <span style={{ fontWeight: 'normal' }}>{analysisResults.startWeight} kg</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>最終體重</span>
-                  <span style={{ fontWeight: 'bold' }}>{analysisResults.endWeight} kg</span>
+                  <span style={{ fontWeight: 'normal' }}>{analysisResults.endWeight} kg</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>體重變化</span>
                   <span style={{ 
-                    fontWeight: 'bold',
+                    fontWeight: 'normal',
                     color: analysisResults.weightChange > 0 ? colors.danger : colors.success
                   }}>
                     {analysisResults.weightChange > 0 ? '+' : ''}{analysisResults.weightChange} kg
@@ -1313,7 +1380,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>體重減少百分比</span>
                   <span style={{ 
-                    fontWeight: 'bold',
+                    fontWeight: 'normal',
                     color: analysisResults.weightLossRate > 0 ? colors.success : colors.danger
                   }}>
                     {analysisResults.weightLossRate > 0 ? '' : '-'}{Math.abs(analysisResults.weightLossRate)}%
@@ -1322,7 +1389,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>平均每週減重</span>
                   <span style={{ 
-                    fontWeight: 'bold',
+                    fontWeight: 'normal',
                     color: analysisResults.averageWeightLossPerWeek >= 0.5 && analysisResults.averageWeightLossPerWeek <= 1 
                       ? colors.success 
                       : colors.warning
@@ -1435,7 +1502,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                     justifyContent: 'center',
                     color: 'white',
                     fontSize: '0.8rem',
-                    fontWeight: 'bold'
+                    fontWeight: 'normal'
                   }}>
                     {analysisResults.successRate > 30 ? `${analysisResults.successRate}%` : ''}
                   </div>
@@ -1461,6 +1528,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                 options={analysisChartOptions}
               />
             </div>
+            
             {/* Weekly trend analysis - mini chart */}
             {analysisResults.daysBetween >= 28 && (
               <div style={{ 
@@ -1492,7 +1560,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                       <div style={{ fontSize: '0.9rem', color: colors.dark }}>平均每週減重</div>
                       <div style={{ 
                         fontSize: '1.5rem', 
-                        fontWeight: 'bold',
+                        fontWeight: 'normal',
                         color: (() => {
                           if (analysisResults.averageWeightLossPerWeek >= 0.5 && analysisResults.averageWeightLossPerWeek <= 1) 
                             return colors.success;
@@ -1529,7 +1597,7 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                       <div style={{ fontSize: '0.9rem', color: colors.dark }}>體脂肪減少率</div>
                       <div style={{ 
                         fontSize: '1.5rem', 
-                        fontWeight: 'bold',
+                        fontWeight: 'normal',
                         color: analysisResults.bodyFatLossRate > 0 ? colors.success : colors.danger
                       }}>
                         {analysisResults.bodyFatLossRate > 0 ? '' : '-'}{Math.abs(analysisResults.bodyFatLossRate)}%
@@ -1558,19 +1626,20 @@ const DataAnalysisCard = ({ weightRecords, dateRange, onDateRangeChange }: DataA
                       <div style={{ fontSize: '0.9rem', color: colors.dark }}>肌肉保留率</div>
                       <div style={{ 
                         fontSize: '1.5rem', 
-                        fontWeight: 'bold',
+                        fontWeight: 'normal',
                         color: analysisResults.leanMassChange >= 0 ? colors.success : colors.danger
                       }}>
                         {analysisResults.leanMassChange >= 0 ? '良好' : '流失'}
                       </div>
                       <div style={{ fontSize: '0.8rem', color: colors.muted, marginTop: '5px' }}>
                         肌肉量變化: {analysisResults.leanMassChange > 0 ? '+' : ''}{analysisResults.leanMassChange} kg
-                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-             )}
+            )}
+            
             {/* Recommendations based on analysis */}
             <div style={{ 
               marginTop: '20px',
@@ -1666,7 +1735,13 @@ export default function Page() {
   const [trendDataCount, setTrendDataCount] = useState(5);
   
   // Tab 組件 - 用於顯示頁內分頁
-  const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => {
+  interface Tab {
+    id: string;
+    label: string;
+    icon?: JSX.Element;
+  }
+
+  const TabNavigation = ({ tabs, activeTab, onTabChange }: { tabs: Tab[], activeTab: string, onTabChange: (id: string) => void }) => {
     return (
       <div style={{
         display: 'flex',
@@ -1731,7 +1806,7 @@ export default function Page() {
       </div>
     );
   };
-
+  
   // Sample data initialization
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([
     { id: 1, date: '2024-10-10', bmi: 27.5, weight: 90, bodyFat: 36, visceralFat: 10, waterRate: 55, muscleMass: 40, boneMineral: 3.2, bmr: 1500 },
@@ -1782,9 +1857,9 @@ export default function Page() {
   ];
   
   // Analysis date range filter state
-  const [dateRange, setDateRange] = useState<DateRange>({
+  const [dateRange, setDateRange] = useState({
     startDate: '',
-    type: 'all',
+    type: 'all' as 'all' | 'days' | 'custom',
     days: 0
   });
   
@@ -1793,9 +1868,6 @@ export default function Page() {
     startDate: '',
     endDate: ''
   });
-  
-  // Consultation form reference for scrolling
-  const consultationFormRef = useRef<HTMLFormElement | null>(null);
   
   // Filtered consultations based on date range
   const filteredConsultations = useMemo(() => {
@@ -1807,6 +1879,59 @@ export default function Page() {
       return true;
     });
   }, [consultationRecords, consultationDateRange]);
+  
+  // Consultation form reference for scrolling
+  const consultationFormRef = useRef<HTMLFormElement>(null);
+  
+  // Form management for consultation
+  const handleConsultationChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setConsultation(prev => ({ ...prev, [name]: value }));
+  }, []);
+  
+  const handleConsultationSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (consultation.id === null) {
+      setConsultationRecords(prev => [...prev, { ...consultation, id: Date.now() }]);
+    } else {
+      setConsultationRecords(prev =>
+        prev.map((record) => (record.id === consultation.id ? consultation : record))
+      );
+    }
+    setConsultation({
+      id: null,
+      preConsultation: '',
+      postConsultation: '',
+      consultationDate: '',
+      consultationType: 'in-person',
+    });
+  }, [consultation]);
+  
+  const handleConsultationEdit = useCallback((id: number) => {
+    const record = consultationRecords.find((rec) => rec.id === id);
+    if (record) {
+      setConsultation(record);
+      
+      // Scroll to consultation form with smooth animation
+      setTimeout(() => {
+        if (consultationFormRef.current) {
+          consultationFormRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+          
+          // Highlight the form with a flash effect
+          const formElement = consultationFormRef.current;
+          formElement.style.backgroundColor = 'rgba(0, 123, 255, 0.1)';
+          formElement.style.transition = 'background-color 0.5s ease';
+          
+          setTimeout(() => {
+            formElement.style.backgroundColor = 'transparent';
+          }, 800);
+        }
+      }, 100);
+    }
+  }, [consultationRecords]);
   
   // Chart data for weight metrics
   const bodyCompositionChartData = useMemo(() => {
@@ -1911,11 +2036,11 @@ export default function Page() {
       title: { 
         display: true, 
         text: '體組成趨勢圖 - 體脂肪, 肌肉量, 骨礦物量', 
-        font: { size: 16, weight: 'bold' as const },
+        font: { size: 16, weight: 700 },
         padding: { bottom: 20 },
       },
       tooltip: {
-        mode: 'index' as const,
+        mode: 'index',
         intersect: false,
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: '#333',
@@ -1924,9 +2049,10 @@ export default function Page() {
         borderWidth: 1,
         padding: 10,
         cornerRadius: 6,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
       },
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
           usePointStyle: true,
           padding: 15,
@@ -1936,9 +2062,9 @@ export default function Page() {
     },
     scales: {
       y: {
-        type: 'linear' as const,
+        type: 'linear',
         display: true,
-        position: 'left' as const,
+        position: 'left',
         grid: {
           color: 'rgba(0,0,0,0.05)',
           borderDash: [3, 3],
@@ -1984,11 +2110,11 @@ export default function Page() {
       title: { 
         display: true, 
         text: 'BMI、體脂肪率、內臟脂肪等級、水分率趨勢圖', 
-        font: { size: 16, weight: 'bold' as const },
+        font: { size: 16, weight: 700 },
         padding: { bottom: 20 },
       },
       tooltip: {
-        mode: 'index' as const,
+        mode: 'index',
         intersect: false,
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: '#333',
@@ -1997,9 +2123,10 @@ export default function Page() {
         borderWidth: 1,
         padding: 10,
         cornerRadius: 6,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
       },
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
           usePointStyle: true,
           padding: 15,
@@ -2009,9 +2136,9 @@ export default function Page() {
     },
     scales: {
       y: {
-        type: 'linear' as const,
+        type: 'linear',
         display: true,
-        position: 'left' as const,
+        position: 'left',
         grid: {
           color: 'rgba(0,0,0,0.05)',
           borderDash: [3, 3],
@@ -2024,9 +2151,9 @@ export default function Page() {
         }
       },
       y1: {
-        type: 'linear' as const,
+        type: 'linear',
         display: true,
-        position: 'right' as const,
+        position: 'right',
         grid: {
           drawOnChartArea: false,
         },
@@ -2047,19 +2174,74 @@ export default function Page() {
       }
     },
     interaction: {
-      mode: 'index' as const,
+      mode: 'index',
       intersect: false,
     },
   };
   
-  const bmrChartOptions = {
+  interface BmrChartOptions {
+    responsive: boolean;
+    maintainAspectRatio: boolean;
+    plugins: {
+      title: {
+        display: boolean;
+        text: string;
+        font: { size: number; weight: string };
+        padding: { bottom: number };
+      };
+      tooltip: {
+        backgroundColor: string;
+        titleColor: string;
+        bodyColor: string;
+        borderColor: string;
+        borderWidth: number;
+        padding: number;
+        cornerRadius: number;
+        boxShadow: string;
+        callbacks: {
+          label: (context: any) => string;
+        };
+      };
+      legend: {
+        position: 'top' | 'left' | 'bottom' | 'right' | 'center' | 'chartArea';
+        labels: {
+          usePointStyle: boolean;
+          padding: number;
+          font: { size: number };
+        };
+      };
+    };
+    scales: {
+      y: {
+        beginAtZero: boolean;
+        grid: {
+          color: string;
+          borderDash: number[];
+        };
+        ticks: {
+          font: { size: number };
+          callback: (value: number) => string;
+        };
+      };
+      x: {
+        grid: { display: boolean };
+        ticks: {
+          font: { size: number };
+          maxRotation: number;
+          minRotation: number;
+        };
+      };
+    };
+  }
+
+  const bmrChartOptions: BmrChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      title: { 
-        display: true, 
-        text: '基礎代謝率 (BMR) 趨勢', 
-        font: { size: 16, weight: 'bold' as const },
+      title: {
+        display: true,
+        text: '基礎代謝率 (BMR) 趨勢',
+        font: { size: 16, weight: 'normal' },
         padding: { bottom: 20 },
       },
       tooltip: {
@@ -2070,19 +2252,20 @@ export default function Page() {
         borderWidth: 1,
         padding: 10,
         cornerRadius: 6,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
         callbacks: {
-          label: function(context: any) {
+          label: function (context) {
             return `基礎代謝率: ${context.parsed.y} kcal/天`;
-          }
-        }
+          },
+        },
       },
       legend: {
-        position: 'top' as const,
+        position: 'top',
         labels: {
           usePointStyle: true,
           padding: 15,
-          font: { size: 12 }
-        }
+          font: { size: 12 },
+        },
       },
     },
     scales: {
@@ -2092,21 +2275,21 @@ export default function Page() {
           color: 'rgba(0,0,0,0.05)',
           borderDash: [3, 3],
         },
-        ticks: { 
+        ticks: {
           font: { size: 12 },
-          callback: function(value: any) {
+          callback: function (value) {
             return value + ' kcal';
-          }
+          },
         },
       },
       x: {
         grid: { display: false },
-        ticks: { 
+        ticks: {
           font: { size: 11 },
           maxRotation: 45,
-          minRotation: 45
-        }
-      }
+          minRotation: 45,
+        },
+      },
     },
   };
   
@@ -2119,7 +2302,8 @@ export default function Page() {
     maxWidth: '1800px',
     margin: '0 auto',
     padding: '20px',
-  } as React.CSSProperties;
+  };
+  
   // Button styles
   const tabButtonStyle = {
     padding: '12px 24px',
@@ -2130,10 +2314,10 @@ export default function Page() {
     border: 'none',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     fontSize: '1rem',
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     transition: 'transform 0.2s ease, box-shadow 0.2s ease',
     margin: '0 10px',
-  } as React.CSSProperties;
+  };
   
   // Active tab style
   const getTabButtonStyle = (tab: 'weightData' | 'consultation') => {
@@ -2143,7 +2327,7 @@ export default function Page() {
       color: activeTab === tab ? 'white' : colors.dark,
       transform: activeTab === tab ? 'translateY(-2px)' : 'none',
       boxShadow: activeTab === tab ? '0 4px 8px rgba(0,0,0,0.15)' : '0 2px 4px rgba(0,0,0,0.1)',
-    } as React.CSSProperties;
+    };
   };
   
   // Form styles
@@ -2159,7 +2343,7 @@ export default function Page() {
     label: {
       display: 'block',
       marginBottom: '8px',
-      fontWeight: 'bold',
+      fontWeight: 'normal',
       fontSize: '0.9rem',
     },
     input: {
@@ -2177,7 +2361,7 @@ export default function Page() {
       border: '1px solid #ced4da',
       fontSize: '1rem',
       minHeight: '120px',
-      resize: 'vertical' as React.CSSProperties['resize'],
+      resize: 'vertical' as const,
     },
     select: {
       width: '100%',
@@ -2202,14 +2386,14 @@ export default function Page() {
   // Table styles
   const tableStyles = {
     container: {
-      overflowX: 'auto' as React.CSSProperties['overflowX'],
+      overflowX: 'auto' as const,
       marginTop: '20px',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
       borderRadius: '8px',
     },
     table: {
       width: '100%',
-      borderCollapse: 'collapse' as React.CSSProperties['borderCollapse'],
+      borderCollapse: 'collapse' as 'collapse',
       fontSize: '0.9rem',
     },
     thead: {
@@ -2218,8 +2402,8 @@ export default function Page() {
     },
     th: {
       padding: '12px 15px',
-      textAlign: 'left' as React.CSSProperties['textAlign'],
-      fontWeight: 'bold',
+      textAlign: 'left' as const,
+      fontWeight: 'normal',
       borderBottom: '2px solid #ddd',
     },
     tr: {
@@ -2234,7 +2418,7 @@ export default function Page() {
     },
     td: {
       padding: '10px 15px',
-      verticalAlign: 'middle' as React.CSSProperties['verticalAlign'],
+      verticalAlign: 'middle',
     },
   };
   
@@ -2346,865 +2530,1437 @@ export default function Page() {
             gap: '8px'
           }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
-            營養師諮詢記錄
+            營養諮詢記錄
           </div>
         </button>
       </div>
-      
-      {/* 會員資訊區塊 - 固定顯示在所有頁籤 */}
-      <MemberInfoCard 
-        fiveTypeData={currentFiveTypeData}
-        historicalFiveTypeData={historicalFiveTypeData}
-      />
-      
-      {/* 主內容區域 - 根據選擇的頁籤顯示不同內容 */}
-      {activeTab === 'weightData' ? (
-        <div>
-          {/* 九大數據減重分析子頁籤 */}
-          <TabNavigation
+
+      {/* Weight data tab */}
+      {activeTab === 'weightData' && (
+        <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+          <h1 style={{ 
+            textAlign: 'center',
+            color: colors.primary,
+            fontSize: '2rem',
+            marginBottom: '30px',
+            fontWeight: 'normal',
+            borderBottom: `3px solid ${colors.primary}`,
+            paddingBottom: '10px',
+          }}>
+            九大數據減重分析
+          </h1>
+          
+          {/* 子頁籤導航 */}
+          <TabNavigation 
             tabs={[
-              { id: 'overview', label: '數據總覽' },
-              { id: 'analysis', label: '減重分析' },
-              { id: 'trends', label: '趨勢圖表' },
-              { id: 'records', label: '歷史數據' },
+              {
+                id: 'overview',
+                label: '整體概覽',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+              },
+              {
+                id: 'memberInfo',
+                label: '會員資訊',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+              },
+              {
+                id: 'analysis',
+                label: '數據分析',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                      </svg>
+              },
+              {
+                id: 'records',
+                label: '數據記錄',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+              },
+              {
+                id: 'charts',
+                label: '趨勢圖表',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                      </svg>
+              }
             ]}
             activeTab={weightDataSubTab}
-            onTabChange={(tabId) => setWeightDataSubTab(tabId)}
+            onTabChange={setWeightDataSubTab}
           />
           
-          {/* 子頁籤內容 */}
+          {/* 整體概覽頁籤 */}
           {weightDataSubTab === 'overview' && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-              <div style={{ flex: '1 1 100%' }}>
-                <Card title="最新檢測數據">
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                    {/* Most recent weight record data summary */}
-                    {weightRecords.length > 0 && (() => {
-                      const latestRecord = [...weightRecords].sort(
-                        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-                      )[0];
-                      
-                      const metrics = [
-                        { label: '測量日期', value: latestRecord.date, unit: '', color: colors.primary },
-                        { label: '體重', value: latestRecord.weight, unit: 'kg', color: colors.primary },
-                        { label: 'BMI', value: latestRecord.bmi, unit: '', color: 
-                          latestRecord.bmi < 18.5 ? '#17a2b8' : 
-                          latestRecord.bmi < 24 ? '#28a745' : 
-                          latestRecord.bmi < 27 ? '#ffc107' : 
-                          latestRecord.bmi < 30 ? '#fd7e14' : '#dc3545'
-                        },
-                        { label: '體脂肪率', value: latestRecord.bodyFat, unit: '%', color: colors.warning },
-                        { label: '內臟脂肪', value: latestRecord.visceralFat, unit: '', color: colors.danger },
-                        { label: '水分率', value: latestRecord.waterRate, unit: '%', color: colors.info },
-                        { label: '肌肉量', value: latestRecord.muscleMass, unit: 'kg', color: colors.success },
-                        { label: '骨礦物量', value: latestRecord.boneMineral, unit: 'kg', color: '#6f42c1' },
-                        { label: '基礎代謝率', value: latestRecord.bmr, unit: 'kcal', color: '#fd7e14' },
-                      ];
-                      
-                      return (
-                        <div style={{ 
-                          width: '100%', 
-                          display: 'flex', 
-                          flexWrap: 'wrap',
-                          gap: '16px', 
-                          justifyContent: 'space-between'
-                        }}>
-                          {metrics.map((metric, index) => (
-                            <div key={index} style={{ 
-                              flex: index === 0 ? '1 1 100%' : '1 1 160px',
-                              backgroundColor: index === 0 ? '#f8f9fa' : 'white',
-                              padding: '16px',
-                              borderRadius: '8px',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-                              textAlign: 'center',
-                              border: '1px solid #eee',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              justifyContent: 'center',
-                              position: 'relative',
-                              overflow: 'hidden'
-                            }}>
-                              {index !== 0 && (
-                                <div style={{
-                                  position: 'absolute',
-                                  left: 0,
-                                  top: 0,
-                                  width: '5px',
-                                  height: '100%',
-                                  backgroundColor: metric.color,
-                                }}></div>
-                              )}
-                              <div style={{ 
-                                fontSize: '0.9rem', 
-                                fontWeight: 'bold',
-                                color: '#6c757d',
-                                marginBottom: '8px' 
-                              }}>
-                                {metric.label}
-                              </div>
-                              <div style={{ 
-                                fontSize: index === 0 ? '1.1rem' : '1.5rem', 
-                                fontWeight: 'bold',
-                                color: index === 0 ? colors.primary : '#333'
-                              }}>
-                                {metric.value}{metric.unit}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
+              {/* 左側：會員資訊簡要顯示 */}
+              <div style={{ flex: '1 1 300px' }}>
+                <MemberInfoCard 
+                  fiveTypeData={currentFiveTypeData}
+                  historicalFiveTypeData={historicalFiveTypeData}
+                />
+              </div>
+              
+              {/* 右側：數據分析簡要顯示 */}
+              <div style={{ flex: '2 1 700px' }}>
+                <DataAnalysisCard 
+                  weightRecords={weightRecords}
+                  dateRange={dateRange}
+                  onDateRangeChange={setDateRange}
+                />
+              </div>
+            </div>
+          )}
+          
+          {/* 會員資訊頁籤 */}
+          {weightDataSubTab === 'memberInfo' && (
+            <div>
+              <MemberInfoCard 
+                fiveTypeData={currentFiveTypeData}
+                historicalFiveTypeData={historicalFiveTypeData}
+              />
+            </div>
+          )}
+          
+          {/* 數據分析頁籤 */}
+          {weightDataSubTab === 'analysis' && (
+            <div>
+              <DataAnalysisCard 
+                weightRecords={weightRecords}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+              />
+            </div>
+          )}
+          
+          {/* 數據記錄頁籤 */}
+          {weightDataSubTab === 'records' && (
+            <Card title="九大數據詳細紀錄">
+              <div style={tableStyles.container}>
+                <table style={tableStyles.table}>
+                  <thead style={tableStyles.thead}>
+                    <tr>
+                      <th style={tableStyles.th}>測量日期</th>
+                      <th style={tableStyles.th}>BMI</th>
+                      <th style={tableStyles.th}>體重 (kg)</th>
+                      <th style={tableStyles.th}>體脂肪率 (%)</th>
+                      <th style={tableStyles.th}>體脂肪 (kg)</th>
+                      <th style={tableStyles.th}>內臟脂肪</th>
+                      <th style={tableStyles.th}>水分率 (%)</th>
+                      <th style={tableStyles.th}>肌肉量 (kg)</th>
+                      <th style={tableStyles.th}>骨礦物量 (kg)</th>
+                      <th style={tableStyles.th}>BMR (kcal)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {weightRecords.map((record, index) => (
+                      <tr 
+                        key={record.id} 
+                        style={{
+                          ...tableStyles.tr,
+                          ...(index % 2 === 0 ? tableStyles.trEven : {}),
+                        }}
+                      >
+                        <td style={tableStyles.td}>{record.date}</td>
+                        <td style={tableStyles.td}>{record.bmi}</td>
+                        <td style={tableStyles.td}>{record.weight}</td>
+                        <td style={tableStyles.td}>{record.bodyFat}%</td>
+                        <td style={tableStyles.td}>
+                          {((record.weight * record.bodyFat) / 100).toFixed(1)}
+                        </td>
+                        <td style={tableStyles.td}>{record.visceralFat}</td>
+                        <td style={tableStyles.td}>{record.waterRate}%</td>
+                        <td style={tableStyles.td}>{record.muscleMass}</td>
+                        <td style={tableStyles.td}>{record.boneMineral}</td>
+                        <td style={tableStyles.td}>{record.bmr}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+          
+          {/* 趨勢圖表頁籤 */}
+          {weightDataSubTab === 'charts' && (
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: '20px'
+            }}>
+              <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+                <Card title="體組成變化">
+                  <div style={{ height: '400px' }}>
+                    <LineChart 
+                      data={bodyCompositionChartData} 
+                      options={bodyCompositionChartOptions} 
+                    />
+                  </div>
+                </Card>
+              </div>
+              
+              <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+                <Card title="生理指標變化">
+                  <div style={{ height: '400px' }}>
+                    <LineChart 
+                      data={bodyMetricsChartData} 
+                      options={bodyMetricsChartOptions} 
+                    />
+                  </div>
+                </Card>
+              </div>
+              
+              <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+                <Card title="基礎代謝率變化">
+                  <div style={{ height: '400px' }}>
+                    <LineChart 
+                      data={bmrChartData} 
+                      options={bmrChartOptions} 
+                    />
                   </div>
                 </Card>
               </div>
             </div>
           )}
-          
-          {weightDataSubTab === 'analysis' && (
-            <DataAnalysisCard 
-              weightRecords={weightRecords}
-              dateRange={dateRange}
-              onDateRangeChange={(newRange) => setDateRange(newRange)}
-            />
-          )}
-          
-          {weightDataSubTab === 'trends' && (
-            <div>
-              <Card title="體重與BMI趨勢">
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ marginRight: '10px', fontWeight: 'bold' }}>
-                    顯示資料筆數:
-                  </label>
-                  <select 
-                    value={trendDataCount} 
-                    onChange={(e) => setTrendDataCount(parseInt(e.target.value))}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '4px',
-                      border: '1px solid #ced4da',
-                    }}
-                  >
-                    <option value={5}>最近 5 筆</option>
-                    <option value={10}>最近 10 筆</option>
-                    <option value={0}>全部資料</option>
-                  </select>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '20px'
-                }}>
-                  <div style={{ flex: '1 1 450px', height: '300px' }}>
-                    <LineChart
-                      data={{
-                        labels: weightRecords
-                          .slice(-trendDataCount || weightRecords.length)
-                          .map((record) => record.date),
-                        datasets: [
-                          {
-                            label: '體重 (kg)',
-                            data: weightRecords
-                              .slice(-trendDataCount || weightRecords.length)
-                              .map((record) => record.weight),
-                            borderColor: colors.primary,
-                            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y',
-                          },
-                          {
-                            label: 'BMI',
-                            data: weightRecords
-                              .slice(-trendDataCount || weightRecords.length)
-                              .map((record) => record.bmi),
-                            borderColor: colors.info,
-                            backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y1',
-                          },
-                        ],
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          title: { display: false },
-                          tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                          },
-                        },
-                        scales: {
-                          y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                              display: true,
-                              text: '體重 (kg)',
-                            },
-                          },
-                          y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            grid: {
-                              drawOnChartArea: false,
-                            },
-                            title: {
-                              display: true,
-                              text: 'BMI',
-                            },
-                          },
-                          x: {
-                            grid: { display: false },
-                          },
-                        },
-                      }}
-                    />
-                  </div>
-                </div>
-              </Card>
-              
-              <Card title="體組成趨勢">
-                <div style={{ height: '350px' }}>
-                  <LineChart
-                    data={{
-                      labels: weightRecords
-                        .slice(-trendDataCount || weightRecords.length)
-                        .map((record) => record.date),
-                      datasets: [
-                        {
-                          label: '體脂肪率 (%)',
-                          data: weightRecords
-                            .slice(-trendDataCount || weightRecords.length)
-                            .map((record) => record.bodyFat),
-                          borderColor: colors.warning,
-                          backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                          fill: true,
-                          tension: 0.4,
-                        },
-                        {
-                          label: '水分率 (%)',
-                          data: weightRecords
-                            .slice(-trendDataCount || weightRecords.length)
-                            .map((record) => record.waterRate),
-                          borderColor: colors.info,
-                          backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                          fill: true,
-                          tension: 0.4,
-                        },
-                        {
-                          label: '肌肉率 (%)',
-                          data: weightRecords
-                            .slice(-trendDataCount || weightRecords.length)
-                            .map((record) => record.muscleMass / record.weight * 100),
-                          borderColor: colors.success,
-                          backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                          fill: true,
-                          tension: 0.4,
-                        },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        tooltip: {
-                          mode: 'index',
-                          intersect: false,
-                        },
-                      },
-                      scales: {
-                        y: {
-                          title: {
-                            display: true,
-                            text: '百分比 (%)',
-                          },
-                        },
-                        x: {
-                          grid: { display: false },
-                        },
-                      },
-                    }}
-                  />
-                </div>
-              </Card>
-              
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
-                <div style={{ flex: '1 1 450px' }}>
-                  <Card title="體組成重量趨勢">
-                    <div style={{ height: '300px' }}>
-                      <LineChart
-                        data={bodyCompositionChartData}
-                        options={bodyCompositionChartOptions}
-                      />
-                    </div>
-                  </Card>
-                </div>
-                <div style={{ flex: '1 1 450px' }}>
-                  <Card title="基礎代謝率趨勢">
-                    <div style={{ height: '300px' }}>
-                      <LineChart
-                        data={bmrChartData}
-                        options={bmrChartOptions}
-                      />
-                    </div>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {weightDataSubTab === 'records' && (
-            <Card title="歷史數據記錄">
-              <div style={tableStyles.container}>
-                <table style={tableStyles.table}>
-                  <thead style={tableStyles.thead}>
-                    <tr>
-                      <th style={tableStyles.th}>日期</th>
-                      <th style={tableStyles.th}>體重 (kg)</th>
-                      <th style={tableStyles.th}>BMI</th>
-                      <th style={tableStyles.th}>體脂肪率 (%)</th>
-                      <th style={tableStyles.th}>內臟脂肪</th>
-                      <th style={tableStyles.th}>水分率 (%)</th>
-                      <th style={tableStyles.th}>肌肉量 (kg)</th>
-                      <th style={tableStyles.th}>骨礦物量 (kg)</th>
-                      <th style={tableStyles.th}>基礎代謝 (kcal)</th>
-                      <th style={tableStyles.th}>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {weightRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={10} style={{ textAlign: 'center', padding: '20px' }}>
-                          尚無數據記錄
-                        </td>
-                      </tr>
-                    ) : (
-                      [...weightRecords]
-                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                        .map((record, index) => (
-                          <tr 
-                            key={record.id}
-                            style={{
-                              ...tableStyles.tr,
-                              ...(index % 2 === 1 ? tableStyles.trEven : {}),
-                            }}
-                            onMouseOver={(e) => Object.assign(e.currentTarget.style, tableStyles.trHover)}
-                            onMouseOut={(e) => Object.assign(
-                              e.currentTarget.style,
-                              tableStyles.tr,
-                              index % 2 === 1 ? tableStyles.trEven : {}
-                            )}
-                          >
-                            <td style={tableStyles.td}>{record.date}</td>
-                            <td style={tableStyles.td}>{record.weight}</td>
-                            <td style={tableStyles.td}>{record.bmi}</td>
-                            <td style={tableStyles.td}>{record.bodyFat}</td>
-                            <td style={tableStyles.td}>{record.visceralFat}</td>
-                            <td style={tableStyles.td}>{record.waterRate}</td>
-                            <td style={tableStyles.td}>{record.muscleMass}</td>
-                            <td style={tableStyles.td}>{record.boneMineral}</td>
-                            <td style={tableStyles.td}>{record.bmr}</td>
-                            <td style={tableStyles.td}>
-                              <button
-                                onClick={() => {
-                                  // Edit record functionality would go here
-                                  alert(`編輯紀錄 ID: ${record.id}`);
-                                }}
-                                style={{
-                                  padding: '5px 10px',
-                                  backgroundColor: colors.info,
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  marginRight: '5px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                編輯
-                              </button>
-                              <button
-                                onClick={() => {
-                                  // Delete record functionality would go here
-                                  if (confirm('確定要刪除此紀錄嗎？')) {
-                                    setWeightRecords(weightRecords.filter(r => r.id !== record.id));
-                                  }
-                                }}
-                                style={{
-                                  padding: '5px 10px',
-                                  backgroundColor: colors.danger,
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                刪除
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div style={{ marginTop: '20px' }}>
-                <h3 style={{ 
-                  borderLeft: `4px solid ${colors.primary}`,
-                  paddingLeft: '10px',
-                  fontSize: '1.2rem',
-                  marginBottom: '15px'
-                }}>
-                  新增數據紀錄
-                </h3>
-                
-                <form style={formStyles.container}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="recordDate" style={formStyles.label}>測量日期</label>
-                        <input
-                          type="date"
-                          id="recordDate"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="weight" style={formStyles.label}>體重 (kg)</label>
-                        <input
-                          type="number"
-                          id="weight"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="bmi" style={formStyles.label}>BMI</label>
-                        <input
-                          type="number"
-                          id="bmi"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="bodyFat" style={formStyles.label}>體脂肪率 (%)</label>
-                        <input
-                          type="number"
-                          id="bodyFat"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="visceralFat" style={formStyles.label}>內臟脂肪</label>
-                        <input
-                          type="number"
-                          id="visceralFat"
-                          step="1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="waterRate" style={formStyles.label}>水分率 (%)</label>
-                        <input
-                          type="number"
-                          id="waterRate"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="muscleMass" style={formStyles.label}>肌肉量 (kg)</label>
-                        <input
-                          type="number"
-                          id="muscleMass"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="boneMineral" style={formStyles.label}>骨礦物量 (kg)</label>
-                        <input
-                          type="number"
-                          id="boneMineral"
-                          step="0.1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={formStyles.formGroup}>
-                        <label htmlFor="bmr" style={formStyles.label}>基礎代謝率 (kcal)</label>
-                        <input
-                          type="number"
-                          id="bmr"
-                          step="1"
-                          style={formStyles.input}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Add new record functionality would go here
-                        alert('新增紀錄');
-                      }}
-                      style={{
-                        ...formStyles.button,
-                        backgroundColor: colors.success,
-                        padding: '12px 30px',
-                        fontSize: '1.1rem',
-                        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                      }}
-                    >
-                      新增紀錄
-                    </button>
-                  </div>
-                  </form>
-              </div>
-            </Card>
-          )}
         </div>
-      ) : (
-        <div>
-          {/* 營養諮詢區塊子頁籤 */}
-          <TabNavigation
+      )}
+
+      {/* Consultation tab */}
+      {activeTab === 'consultation' && (
+        <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
+          <h1 style={{ 
+            textAlign: 'center',
+            color: colors.primary,
+            fontSize: '2rem',
+            marginBottom: '30px',
+            fontWeight: 'normal',
+            borderBottom: `3px solid ${colors.primary}`,
+            paddingBottom: '10px',
+          }}>
+            營養諮詢記錄
+          </h1>
+          
+          {/* 子頁籤導航 */}
+          <TabNavigation 
             tabs={[
-              { id: 'records', label: '諮詢紀錄' },
-              { id: 'add', label: '新增諮詢' },
+              {
+                id: 'records',
+                label: '諮詢紀錄列表',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+              },
+              {
+                id: 'newConsultation',
+                label: '新增/編輯諮詢',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+              },
+              {
+                id: 'memberInfo',
+                label: '會員資訊',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+              },
+              {
+                id: 'analysis',
+                label: '數據分析',
+                icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                      </svg>
+              }
             ]}
             activeTab={consultationSubTab}
-            onTabChange={(tabId) => setConsultationSubTab(tabId)}
+            onTabChange={(tab) => {
+              setConsultationSubTab(tab);
+              // 如果有編輯中的諮詢紀錄，並且切換到其他頁面，則清空編輯狀態
+              if (tab !== 'newConsultation' && consultation.id !== null) {
+                setConsultation({
+                  id: null,
+                  preConsultation: '',
+                  postConsultation: '',
+                  consultationDate: '',
+                  consultationType: 'in-person',
+                });
+              }
+            }}
           />
           
-          {/* 子頁籤內容 */}
+          {/* 諮詢紀錄列表頁籤 */}
           {consultationSubTab === 'records' && (
             <Card title="諮詢紀錄列表">
-              <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
-                <div style={{ flex: '1 1 200px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                    開始日期
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'flex-end',
+                marginBottom: '20px',
+                gap: '10px',
+                flexWrap: 'wrap'
+              }}>
+                <div>
+                  <label style={{ marginRight: '10px', fontSize: '0.9rem' }}>
+                    起始日期:
                   </label>
                   <input
                     type="date"
                     value={consultationDateRange.startDate}
-                    onChange={(e) => setConsultationDateRange({ ...consultationDateRange, startDate: e.target.value })}
+                    onChange={(e) => setConsultationDateRange(prev => ({
+                      ...prev,
+                      startDate: e.target.value
+                    }))}
                     style={{
-                      width: '100%',
-                      padding: '8px 12px',
+                      padding: '6px 10px',
                       borderRadius: '4px',
                       border: '1px solid #ced4da',
+                      fontSize: '0.9rem'
                     }}
                   />
                 </div>
-                <div style={{ flex: '1 1 200px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-                    結束日期
+                
+                <div>
+                  <label style={{ marginRight: '10px', fontSize: '0.9rem' }}>
+                    結束日期:
                   </label>
                   <input
                     type="date"
                     value={consultationDateRange.endDate}
-                    onChange={(e) => setConsultationDateRange({ ...consultationDateRange, endDate: e.target.value })}
+                    onChange={(e) => setConsultationDateRange(prev => ({
+                      ...prev,
+                      endDate: e.target.value
+                    }))}
                     style={{
-                      width: '100%',
-                      padding: '8px 12px',
+                      padding: '6px 10px',
                       borderRadius: '4px',
                       border: '1px solid #ced4da',
+                      fontSize: '0.9rem'
                     }}
                   />
                 </div>
-                <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'flex-end' }}>
-                  <button
-                    onClick={() => setConsultationDateRange({ startDate: '', endDate: '' })}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#f0f0f0',
-                      color: '#333',
-                      border: '1px solid #ced4da',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    重置篩選
-                  </button>
-                </div>
+                
+                <button
+                  onClick={() => setConsultationDateRange({
+                    startDate: '',
+                    endDate: ''
+                  })}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: '#f8f9fa',
+                    color: colors.dark,
+                    border: '1px solid #ced4da',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  重置篩選
+                </button>
               </div>
               
-              <div style={tableStyles.container}>
-                <table style={tableStyles.table}>
-                  <thead style={tableStyles.thead}>
-                    <tr>
-                      <th style={tableStyles.th}>日期</th>
-                      <th style={tableStyles.th}>諮詢方式</th>
-                      <th style={tableStyles.th}>諮詢前狀況</th>
-                      <th style={tableStyles.th}>諮詢建議</th>
-                      <th style={tableStyles.th}>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredConsultations.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} style={{ textAlign: 'center', padding: '20px' }}>
-                          尚無諮詢紀錄
-                        </td>
-                      </tr>
-                    ) : (
-                      [...filteredConsultations]
-                        .sort((a, b) => new Date(b.consultationDate).getTime() - new Date(a.consultationDate).getTime())
-                        .map((record, index) => (
-                          <tr
-                            key={record.id}
-                            style={{
-                              ...tableStyles.tr,
-                              ...(index % 2 === 1 ? tableStyles.trEven : {}),
-                            }}
-                            onMouseOver={(e) => Object.assign(e.currentTarget.style, tableStyles.trHover)}
-                            onMouseOut={(e) => Object.assign(
-                              e.currentTarget.style,
-                              tableStyles.tr,
-                              index % 2 === 1 ? tableStyles.trEven : {}
-                            )}
-                          >
-                            <td style={tableStyles.td}>{record.consultationDate}</td>
-                            <td style={tableStyles.td}>
-                              {record.consultationType === 'in-person' 
-                                ? '現場諮詢' 
-                                : record.consultationType === 'video' 
-                                  ? '視訊諮詢' 
-                                  : '電話諮詢'}
-                            </td>
-                            <td style={{
-                              ...tableStyles.td,
-                              maxWidth: '200px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}>
-                              {record.preConsultation}
-                            </td>
-                            <td style={{
-                              ...tableStyles.td,
-                              maxWidth: '200px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}>
-                              {record.postConsultation}
-                            </td>
-                            <td style={tableStyles.td}>
-                              <button
-                                onClick={() => {
-                                  setConsultation(record);
-                                  setConsultationSubTab('add');
-                                  setTimeout(() => {
-                                    if (consultationFormRef.current) {
-                                      consultationFormRef.current.scrollIntoView({ behavior: 'smooth' });
-                                    }
-                                  }, 100);
-                                }}
-                                style={{
-                                  padding: '5px 10px',
-                                  backgroundColor: colors.info,
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  marginRight: '5px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                檢視/編輯
-                              </button>
-                              <button
-                                onClick={() => {
-                                  // Delete consultation record functionality
-                                  if (confirm('確定要刪除此諮詢紀錄嗎？')) {
-                                    setConsultationRecords(consultationRecords.filter(r => r.id !== record.id));
-                                  }
-                                }}
-                                style={{
-                                  padding: '5px 10px',
-                                  backgroundColor: colors.danger,
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                刪除
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              {filteredConsultations.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {filteredConsultations.map((record) => (
+                    <div 
+                      key={record.id}
+                      style={{
+                        padding: '15px',
+                        borderRadius: '8px',
+                        border: '1px solid #dee2e6',
+                        backgroundColor: '#fff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                        transition: 'box-shadow 0.2s ease',
+                      }}
+                    >
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        marginBottom: '10px',
+                        borderBottom: '1px solid #f0f0f0',
+                        paddingBottom: '10px'
+                      }}>
+                        <div>
+                          <span style={{ 
+                            backgroundColor: colors.primary,
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            fontSize: '0.8rem',
+                            marginRight: '10px'
+                          }}>
+                            {record.consultationDate}
+                          </span>
+                          <span style={{ 
+                            backgroundColor: (() => {
+                              switch(record.consultationType) {
+                                case 'in-person': return colors.success;
+                                case 'online': return colors.info;
+                                case 'phone': return colors.warning;
+                                default: return colors.secondary;
+                              }
+                            })(),
+                            color: 'white',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            fontSize: '0.8rem'
+                          }}>
+                            {(() => {
+                              switch(record.consultationType) {
+                                case 'in-person': return '現場';
+                                case 'online': return '線上';
+                                case 'phone': return '電話';
+                                default: return '其他';
+                              }
+                            })()}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            handleConsultationEdit(record.id!);
+                            setConsultationSubTab('newConsultation');
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            backgroundColor: '#f8f9fa',
+                            color: colors.dark,
+                            border: '1px solid #dee2e6',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '0.8rem',
+                            transition: 'all 0.3s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#007bff';
+                            e.currentTarget.style.color = 'white';
+                            e.currentTarget.style.border = '1px solid #007bff';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f8f9fa';
+                            e.currentTarget.style.color = colors.dark;
+                            e.currentTarget.style.border = '1px solid #dee2e6';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
+                          onMouseDown={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
+                          onMouseUp={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                          編輯
+                        </button>
+                      </div>
+                      
+                      <div style={{ marginBottom: '10px' }}>
+                        <h4 style={{ margin: '0 0 8px 0', color: colors.dark }}>諮詢前:</h4>
+                        <p style={{ 
+                          margin: 0, 
+                          backgroundColor: '#f8f9fa',
+                          padding: '10px',
+                          borderRadius: '6px',
+                          whiteSpace: 'pre-line'
+                        }}>
+                          {record.preConsultation}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <h4 style={{ margin: '0 0 8px 0', color: colors.dark }}>諮詢後:</h4>
+                        <p style={{ 
+                          margin: 0, 
+                          backgroundColor: '#f8f9fa',
+                          padding: '10px',
+                          borderRadius: '6px',
+                          whiteSpace: 'pre-line'
+                        }}>
+                          {record.postConsultation}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ 
+                  padding: '40px 20px', 
+                  textAlign: 'center',
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: '8px',
+                  color: colors.muted
+                }}>
+                  <p style={{ fontSize: '1.1rem', margin: 0 }}>
+                    {consultationDateRange.startDate || consultationDateRange.endDate ? 
+                      '沒有符合所選日期範圍的諮詢紀錄' : 
+                      '尚未有任何諮詢紀錄，請使用「新增/編輯諮詢」頁籤來新增'
+                    }
+                  </p>
+                </div>
+              )}
             </Card>
           )}
           
-          {consultationSubTab === 'add' && (
-            <Card title={consultation.id ? '編輯諮詢紀錄' : '新增諮詢紀錄'}>
-              <form ref={consultationFormRef} style={formStyles.container}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                  <div style={{ flex: '1 1 300px' }}>
-                    <div style={formStyles.formGroup}>
-                      <label htmlFor="consultationDate" style={formStyles.label}>諮詢日期</label>
-                      <input
-                        type="date"
-                        id="consultationDate"
-                        value={consultation.consultationDate}
-                        onChange={(e) => setConsultation({ ...consultation, consultationDate: e.target.value })}
-                        style={formStyles.input}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div style={{ flex: '1 1 300px' }}>
-                    <div style={formStyles.formGroup}>
-                      <label htmlFor="consultationType" style={formStyles.label}>諮詢方式</label>
-                      <select
-                        id="consultationType"
-                        value={consultation.consultationType}
-                        onChange={(e) => setConsultation({ ...consultation, consultationType: e.target.value })}
-                        style={formStyles.select}
-                      >
-                        <option value="in-person">現場諮詢</option>
-                        <option value="video">視訊諮詢</option>
-                        <option value="phone">電話諮詢</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                
-                <div style={formStyles.formGroup}>
-                  <label htmlFor="preConsultation" style={formStyles.label}>諮詢前狀況</label>
-                  <textarea
-                    id="preConsultation"
-                    value={consultation.preConsultation}
-                    onChange={(e) => setConsultation({ ...consultation, preConsultation: e.target.value })}
-                    placeholder="請描述會員目前狀況、飲食習慣、運動習慣等..."
-                    style={formStyles.textarea}
-                  ></textarea>
-                </div>
-                
-                <div style={formStyles.formGroup}>
-                  <label htmlFor="postConsultation" style={formStyles.label}>諮詢建議</label>
-                  <textarea
-                    id="postConsultation"
-                    value={consultation.postConsultation}
-                    onChange={(e) => setConsultation({ ...consultation, postConsultation: e.target.value })}
-                    placeholder="請記錄營養師給予的建議、飲食調整方案等..."
-                    style={formStyles.textarea}
-                  ></textarea>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px' }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Reset form
-                      setConsultation({
-                        id: null,
-                        consultationDate: '',
-                        preConsultation: '',
-                        postConsultation: '',
-                        consultationType: 'in-person',
-                      });
-                    }}
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#f0f0f0',
-                      color: '#333',
-                      border: '1px solid #ced4da',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    清除表單
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      // Validate form
-                      if (!consultation.consultationDate) {
-                        alert('請選擇諮詢日期');
-                        return;
-                      }
-                      
-                      if (consultation.id) {
-                        // Update existing record
-                        setConsultationRecords(
-                          consultationRecords.map(r => r.id === consultation.id ? consultation : r)
-                        );
-                      } else {
-                        // Add new record
-                        const newRecord = {
-                          ...consultation,
-                          id: Date.now(), // Simple id generation
-                        };
-                        setConsultationRecords([...consultationRecords, newRecord]);
-                      }
-                      
-                      // Reset form and go back to records
-                      setConsultation({
-                        id: null,
-                        consultationDate: '',
-                        preConsultation: '',
-                        postConsultation: '',
-                        consultationType: 'in-person',
-                      });
+          {/* 新增/編輯諮詢頁籤 */}
+          {consultationSubTab === 'newConsultation' && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+              <div style={{ flex: '1 1 60%' }}>
+                <Card title={consultation.id === null ? "新增諮詢紀錄" : "編輯諮詢紀錄"}>
+                  <form 
+                    ref={consultationFormRef}
+                    onSubmit={(e) => {
+                      handleConsultationSubmit(e);
+                      // 提交成功後切換到諮詢紀錄列表頁籤
                       setConsultationSubTab('records');
                     }}
                     style={{
-                      padding: '10px 30px',
-                      backgroundColor: consultation.id ? colors.info : colors.success,
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem',
+                      ...formStyles.container,
+                      transition: 'all 0.3s ease'
                     }}
                   >
-                    {consultation.id ? '更新紀錄' : '儲存紀錄'}
-                  </button>
-                </div>
-              </form>
-            </Card>
+                    {consultation.id !== null && (
+                      <div style={{
+                        backgroundColor: '#e8f4ff',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        marginBottom: '20px',
+                        borderLeft: '4px solid #007bff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px'
+                      }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        <span style={{ color: '#0056b3', fontWeight: '500' }}>
+                          正在編輯 {new Date(consultation.consultationDate).toLocaleDateString('zh-TW')} 的諮詢紀錄
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div style={formStyles.formGroup}>
+                      <label style={formStyles.label}>
+                        <span style={{ color: '#dc3545', marginRight: '4px' }}>*</span>
+                        諮詢日期:
+                      </label>
+                      <input
+                        type="date"
+                        name="consultationDate"
+                        value={consultation.consultationDate}
+                        onChange={handleConsultationChange}
+                        required
+                        style={{
+                          ...formStyles.input,
+                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#80bdff';
+                          e.target.style.boxShadow = '0 0 0 0.2rem rgba(0,123,255,.25)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#ced4da';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                    
+                    <div style={formStyles.formGroup}>
+                      <label style={formStyles.label}>
+                        <span style={{ color: '#dc3545', marginRight: '4px' }}>*</span>
+                        諮詢前:
+                      </label>
+                      <textarea
+                        name="preConsultation"
+                        value={consultation.preConsultation}
+                        onChange={handleConsultationChange}
+                        required
+                        style={{
+                          ...formStyles.textarea,
+                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        }}
+                        placeholder="記錄諮詢前客戶的狀態、問題或需求..."
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#80bdff';
+                          e.target.style.boxShadow = '0 0 0 0.2rem rgba(0,123,255,.25)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#ced4da';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                    
+                    <div style={formStyles.formGroup}>
+                      <label style={formStyles.label}>
+                        <span style={{ color: '#dc3545', marginRight: '4px' }}>*</span>
+                        諮詢後:
+                      </label>
+                      <textarea
+                        name="postConsultation"
+                        value={consultation.postConsultation}
+                        onChange={handleConsultationChange}
+                        required
+                        style={{
+                          ...formStyles.textarea,
+                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        }}
+                        placeholder="記錄諮詢後的建議、計劃或結論..."
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#80bdff';
+                          e.target.style.boxShadow = '0 0 0 0.2rem rgba(0,123,255,.25)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#ced4da';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      />
+                    </div>
+                    
+                    <div style={formStyles.formGroup}>
+                      <label style={formStyles.label}>
+                        <span style={{ color: '#dc3545', marginRight: '4px' }}>*</span>
+                        諮詢方式:
+                      </label>
+                      <select
+                        name="consultationType"
+                        value={consultation.consultationType}
+                        onChange={handleConsultationChange}
+                        required
+                        style={{
+                          ...formStyles.select,
+                          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#80bdff';
+                          e.target.style.boxShadow = '0 0 0 0.2rem rgba(0,123,255,.25)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#ced4da';
+                          e.target.style.boxShadow = 'none';
+                        }}
+                      >
+                        <option value="in-person">現場</option>
+                        <option value="online">線上</option>
+                        <option value="phone">電話</option>
+                        <option value="other">其他</option>
+                      </select>
+                    </div>
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '15px',
+                      marginTop: '20px'
+                    }}>
+                      <button
+                        type="submit"
+                        style={{
+                          padding: '10px 20px',
+                          backgroundColor: consultation.id === null ? '#28a745' : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '1rem',
+                          fontWeight: '500',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          flex: '1'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.backgroundColor = consultation.id === null ? '#218838' : '#0069d9';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 3px 6px rgba(0,0,0,0.15)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.backgroundColor = consultation.id === null ? '#28a745' : '#007bff';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        }}
+                        onMouseDown={(e) => {
+                          e.currentTarget.style.transform = 'translateY(1px)';
+                          e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
+                        }}
+                        onMouseUp={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 3px 6px rgba(0,0,0,0.15)';
+                        }}
+                      >
+                        {consultation.id === null ? (
+                          <>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            新增諮詢紀錄
+                          </>
+                        ) : (
+                          <>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                              <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            儲存編輯變更
+                          </>
+                        )}
+                      </button>
+                      
+                      {consultation.id !== null && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setConsultation({
+                              id: null,
+                              preConsultation: '',
+                              postConsultation: '',
+                              consultationDate: '',
+                              consultationType: 'in-person',
+                            });
+                          }}
+                          style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#f8f9fa',
+                            color: '#6c757d',
+                            border: '1px solid #ced4da',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '1rem',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.backgroundColor = '#e2e6ea';
+                            e.currentTarget.style.borderColor = '#dae0e5';
+                            e.currentTarget.style.color = '#495057';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f8f9fa';
+                            e.currentTarget.style.borderColor = '#ced4da';
+                            e.currentTarget.style.color = '#6c757d';
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                          取消編輯
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </Card>
+              </div>
+
+              {/* 右側顯示客戶數據摘要 */}
+              <div style={{ flex: '1 1 35%' }}>
+                <Card title="客戶數據參考">
+                  {/* 最新測量資料 */}
+                  {weightRecords.length > 0 && (
+                    <>
+                      <div style={{
+                        backgroundColor: '#f8f9fa',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '15px'
+                      }}>
+                        <h3 style={{
+                          fontSize: '1rem',
+                          margin: '0 0 10px 0',
+                          color: colors.primary,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 3v18h18"></path>
+                            <path d="M18.4 8.64 8.78 18.11l-5.08-5.14"></path>
+                          </svg>
+                          最新測量資料 ({weightRecords[weightRecords.length - 1].date})
+                        </h3>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>體重</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].weight} kg
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>BMI</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].bmi}
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>體脂肪率</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].bodyFat}%
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>內臟脂肪</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].visceralFat}
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>肌肉量</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].muscleMass} kg
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            padding: '8px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div style={{ fontSize: '0.8rem', color: colors.muted }}>水分率</div>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 'normal', color: colors.dark }}>
+                              {weightRecords[weightRecords.length - 1].waterRate}%
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* 體重趨勢 */}
+                      {weightRecords.length > 1 && (
+                        <div style={{
+                          backgroundColor: '#f8f9fa',
+                          padding: '15px',
+                          borderRadius: '8px',
+                          marginBottom: '15px'
+                        }}>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '10px'
+                          }}>
+                            <h3 style={{
+                              fontSize: '1rem',
+                              margin: 0,
+                              color: colors.primary,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                              </svg>
+                              體重趨勢圖
+                            </h3>
+                            
+                            {/* 趨勢圖數據顯示選擇 */}
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                              <button
+                                onClick={() => setTrendDataCount(5)}
+                                style={{
+                                  padding: '3px 7px',
+                                  fontSize: '0.75rem',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  backgroundColor: trendDataCount === 5 ? colors.primary : '#e9ecef',
+                                  color: trendDataCount === 5 ? 'white' : '#495057',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                5次
+                              </button>
+                              <button
+                                onClick={() => setTrendDataCount(10)}
+                                style={{
+                                  padding: '3px 7px',
+                                  fontSize: '0.75rem',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  backgroundColor: trendDataCount === 10 ? colors.primary : '#e9ecef',
+                                  color: trendDataCount === 10 ? 'white' : '#495057',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                10次
+                              </button>
+                              <button
+                                onClick={() => setTrendDataCount(0)}
+                                style={{
+                                  padding: '3px 7px',
+                                  fontSize: '0.75rem',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  backgroundColor: trendDataCount === 0 ? colors.primary : '#e9ecef',
+                                  color: trendDataCount === 0 ? 'white' : '#495057',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                全部
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div style={{ 
+                            height: '150px', 
+                            marginTop: '10px' 
+                          }}>
+                            {(() => {
+                              // 準備資料
+                              const filteredRecords = trendDataCount === 0 
+                                ? [...weightRecords] 
+                                : [...weightRecords].slice(-Math.min(trendDataCount, weightRecords.length));
+                              
+                              // 計算每次測量之間的差異
+                              const weightDiffs = filteredRecords.map((record, index, array) => {
+                                if (index === 0) return null;
+                                return +(record.weight - array[index - 1].weight).toFixed(1);
+                              }).filter(diff => diff !== null);
+                              
+                              return (
+                                <LineChart
+                                  data={{
+                                    labels: filteredRecords.map(record => record.date),
+                                    datasets: [
+                                      {
+                                        label: '體重(kg)',
+                                        data: filteredRecords.map(record => record.weight),
+                                        borderColor: colors.primary,
+                                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                                        fill: true,
+                                        tension: 0.4,
+                                        borderWidth: 2,
+                                        pointRadius: 5
+                                      }
+                                    ]
+                                  }}
+                                  options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                      legend: {
+                                        display: false
+                                      },
+                                      tooltip: {
+                                        enabled: true,
+                                        callbacks: {
+                                          label: function(context) {
+                                            const index = context.dataIndex;
+                                            let label = `體重: ${context.parsed.y} kg`;
+                                            
+                                            if (index > 0) {
+                                              const yValue = context.parsed.y ?? 0;
+                                              const previousValue = context.dataset.data[index - 1] ?? 0;
+                                              const diff = +(yValue - Number(previousValue)).toFixed(1);
+                                              label += `\n變化: ${diff > 0 ? '+' : ''}${diff} kg`;
+                                            }
+                                            
+                                            return label;
+                                          },
+                                          title: function(tooltipItems) {
+                                            return tooltipItems[0].label;
+                                          }
+                                        },
+                                        padding: 10,
+                                        backgroundColor: 'rgba(255,255,255,0.9)',
+                                        titleColor: '#333',
+                                        bodyColor: '#333',
+                                        borderColor: '#ddd',
+                                        borderWidth: 1,
+                                        displayColors: false
+                                      }
+                                    },
+                                    scales: {
+                                      y: {
+                                        ticks: {
+                                          font: {
+                                            size: 12
+                                          }
+                                        }
+                                      },
+                                      x: {
+                                        ticks: {
+                                          font: {
+                                            size: 12
+                                          },
+                                          maxRotation: 45,
+                                          minRotation: 45
+                                        }
+                                      }
+                                    }
+                                  }}
+                                />
+                              );
+                            })()}
+                          </div>
+                          
+                          {/* 體重變化摘要 */}
+                          <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            marginTop: '15px',
+                            padding: '8px',
+                            backgroundColor: 'white',
+                            borderRadius: '6px',
+                            border: '1px solid #dee2e6'
+                          }}>
+                            <div>
+                              <div style={{ fontSize: '0.8rem', color: colors.muted }}>總體重變化</div>
+                              <div style={{ 
+                                fontSize: '1rem', 
+                                fontWeight: 'normal', 
+                                color: weightRecords[0].weight - weightRecords[weightRecords.length - 1].weight > 0 ? colors.success : colors.danger 
+                              }}>
+                                {weightRecords[0].weight - weightRecords[weightRecords.length - 1].weight > 0 ? '-' : '+'}
+                                {Math.abs((weightRecords[0].weight - weightRecords[weightRecords.length - 1].weight)).toFixed(1)} kg
+                              </div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.8rem', color: colors.muted }}>體脂率變化</div>
+                              <div style={{ 
+                                fontSize: '1rem', 
+                                fontWeight: 'normal', 
+                                color: weightRecords[0].bodyFat - weightRecords[weightRecords.length - 1].bodyFat > 0 ? colors.success : colors.danger 
+                              }}>
+                                {weightRecords[0].bodyFat - weightRecords[weightRecords.length - 1].bodyFat > 0 ? '-' : '+'}
+                                {Math.abs((weightRecords[0].bodyFat - weightRecords[weightRecords.length - 1].bodyFat)).toFixed(1)}%
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* 健康目標與里程碑 */}
+                      <div style={{
+                        backgroundColor: '#f8f9fa',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '15px'
+                      }}>
+                        <h3 style={{
+                          fontSize: '1rem',
+                          margin: '0 0 10px 0',
+                          color: colors.primary,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="8" r="7"></circle>
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                          </svg>
+                          健康目標與成就
+                        </h3>
+                        
+                        {(() => {
+                          const firstRecord = weightRecords[0];
+                          const latestRecord = weightRecords[weightRecords.length - 1];
+                          const weightDiff = firstRecord.weight - latestRecord.weight;
+                          const bodyFatDiff = firstRecord.bodyFat - latestRecord.bodyFat;
+                          
+                          // 計算目標BMI (23 為中等BMI)
+                          const height = 167 / 100; // 假設身高167cm
+                          const goalWeight = 23 * (height * height);
+                          const weightToLose = Math.max(0, latestRecord.weight - goalWeight).toFixed(1);
+                          
+                          return (
+                            <div>
+                              {/* 已達成的成就 */}
+                              <div style={{ marginBottom: '12px' }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 'normal', marginBottom: '6px' }}>
+                                  已達成：
+                                </div>
+                                <div style={{ 
+                                  display: 'flex', 
+                                  flexWrap: 'wrap', 
+                                  gap: '8px'
+                                }}>
+                                  {weightDiff > 0 && (
+                                    <div style={{ 
+                                      padding: '5px 10px', 
+                                      backgroundColor: colors.success, 
+                                      color: 'white', 
+                                      borderRadius: '15px',
+                                      fontSize: '0.8rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '5px'
+                                    }}>
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                      </svg>
+                                      減重 {weightDiff.toFixed(1)} kg
+                                    </div>
+                                  )}
+                                  
+                                  {bodyFatDiff > 0 && (
+                                    <div style={{ 
+                                      padding: '5px 10px', 
+                                      backgroundColor: colors.success, 
+                                      color: 'white', 
+                                      borderRadius: '15px',
+                                      fontSize: '0.8rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '5px'
+                                    }}>
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                      </svg>
+                                      體脂率降低 {bodyFatDiff.toFixed(1)}%
+                                    </div>
+                                  )}
+                                  
+                                  {latestRecord.weight < firstRecord.weight * 0.95 && (
+                                    <div style={{ 
+                                      padding: '5px 10px', 
+                                      backgroundColor: colors.info, 
+                                      color: 'white', 
+                                      borderRadius: '15px',
+                                      fontSize: '0.8rem',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '5px'
+                                    }}>
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                      </svg>
+                                      減重超過5%
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* 下一個目標 */}
+                              <div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 'normal', marginBottom: '6px' }}>
+                                  下一個目標：
+                                </div>
+                                <div style={{ 
+                                  display: 'flex', 
+                                  flexDirection: 'column', 
+                                  gap: '8px'
+                                }}>
+                                  {Number(weightToLose) > 0 && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <div style={{ 
+                                        width: '24px', 
+                                        height: '24px', 
+                                        backgroundColor: colors.warning, 
+                                        color: 'white', 
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.7rem',
+                                        fontWeight: 'normal'
+                                      }}>
+                                        1
+                                      </div>
+                                      <div>再減 {weightToLose} kg 到達理想BMI (23)</div>
+                                    </div>
+                                  )}
+                                  
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ 
+                                      width: '24px', 
+                                      height: '24px', 
+                                      backgroundColor: colors.warning, 
+                                      color: 'white', 
+                                      borderRadius: '50%',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 'normal'
+                                    }}>
+                                      {Number(weightToLose) > 0 ? '2' : '1'}
+                                    </div>
+                                    <div>將體脂率降至 {Math.max(latestRecord.bodyFat - 2, 15).toFixed(1)}%</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      
+                      {/* 回訪提醒與預測 */}
+                      <div style={{
+                        backgroundColor: '#f0f7ff',
+                        padding: '15px',
+                        borderRadius: '8px',
+                        marginBottom: '15px',
+                        border: '1px solid #cce5ff'
+                      }}>
+                        <h3 style={{
+                          fontSize: '1rem',
+                          margin: '0 0 10px 0',
+                          color: '#0056b3',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0056b3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          黏著度提升建議
+                        </h3>
+                        
+                        <div style={{ marginBottom: '10px' }}>
+                          <div style={{ 
+                            padding: '10px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            margin: '0 0 8px 0',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                          }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'normal', color: colors.primary, marginBottom: '4px' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                              </svg>
+                              下次回訪建議
+                            </div>
+                            <div>建議下次回訪時間：{
+                              (() => {
+                                const lastDate = new Date(weightRecords[weightRecords.length - 1].date);
+                                lastDate.setDate(lastDate.getDate() + 7);
+                                return lastDate.toLocaleDateString('zh-TW');
+                              })()
+                            }</div>
+                          </div>
+
+                          <div style={{ 
+                            padding: '10px', 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            margin: '0 0 8px 0',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                          }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'normal', color: colors.warning, marginBottom: '4px' }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                              </svg>
+                              個性化建議
+                            </div>
+                            <div>客戶已有良好進展，可考慮在完成每個階段目標時贈送小獎勵或打卡紀念禮，提高黏著度</div>
+                          </div>
+                        </div>
+                        
+                        {(() => {
+                          // 簡單預測下一個月的體重
+                          const lastRecord = weightRecords[weightRecords.length - 1];
+                          const firstRecord = weightRecords[0];
+                          
+                          // 計算每天平均減重
+                          const days = (new Date(lastRecord.date).getTime() - new Date(firstRecord.date).getTime()) / (1000 * 60 * 60 * 24);
+                          const avgDailyLoss = days > 0 ? (firstRecord.weight - lastRecord.weight) / days : 0;
+                          
+                          // 預測30天後
+                          const predictedWeight = Math.max(lastRecord.weight - (avgDailyLoss * 30), lastRecord.weight * 0.85).toFixed(1);
+                          
+                          return (
+                            <div style={{ 
+                              padding: '10px', 
+                              backgroundColor: 'white', 
+                              borderRadius: '6px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                            }}>
+                              <div style={{ fontSize: '0.9rem', fontWeight: 'normal', color: colors.info, marginBottom: '4px' }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                                  <circle cx="12" cy="12" r="10"></circle>
+                                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                                預測與激勵
+                              </div>
+                              <div>以目前減重速度，30天後預計體重可達：<strong>{predictedWeight} kg</strong></div>
+                              <div style={{ 
+                                marginTop: '8px', 
+                                padding: '5px 10px', 
+                                backgroundColor: '#e8f4ff', 
+                                borderRadius: '4px', 
+                                fontSize: '0.85rem',
+                                borderLeft: '3px solid #007bff'
+                              }}>
+                                如持續保持現有減重速度，預計 {Math.ceil(lastRecord.weight / avgDailyLoss)} 天後可達目標體重！
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      
+                      {/* 五型體質 */}
+                      <div style={{
+                        backgroundColor: '#f8f9fa',
+                        padding: '15px',
+                        borderRadius: '8px'
+                      }}>
+                        <h3 style={{
+                          fontSize: '1rem',
+                          margin: '0 0 10px 0',
+                          color: colors.primary,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"></path>
+                          </svg>
+                          五型體質摘要
+                        </h3>
+                        
+                        <div style={{ padding: '10px' }}>
+                          {currentFiveTypeData.map((item, index) => (
+                            <div key={index} style={{ 
+                              display: 'flex', 
+                              alignItems: 'center',
+                              marginBottom: '8px' 
+                            }}>
+                              <div style={{ 
+                                width: '12px', 
+                                height: '12px', 
+                                backgroundColor: colors.chartColors[index % colors.chartColors.length],
+                                borderRadius: '50%',
+                                marginRight: '8px'
+                              }}></div>
+                              <div style={{ flex: 1 }}>{item.subject}</div>
+                              <div style={{ 
+                                backgroundColor: item.score > 3 ? colors.warning : colors.light,
+                                color: item.score > 3 ? 'white' : colors.dark,
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                fontSize: '0.8rem',
+                                fontWeight: 'normal'
+                              }}>
+                                {item.score}
+                              </div>
+                            </div>
+                          ))}
+                          
+                          {/* 體質建議 */}
+                          <div style={{ 
+                            marginTop: '10px',
+                            padding: '8px',
+                            backgroundColor: '#fff3e0',
+                            borderRadius: '6px',
+                            fontSize: '0.85rem',
+                            borderLeft: '3px solid #ff9800'
+                          }}>
+                            {(() => {
+                              // 找出分數最高的體質
+                              const maxScore = Math.max(...currentFiveTypeData.map(item => item.score));
+                              const dominantType = currentFiveTypeData.find(item => item.score === maxScore);
+                              
+                              switch(dominantType?.subject) {
+                                case '肝鬱氣滯型':
+                                  return '建議多食清淡食物，避免油膩與刺激性食品，搭配輕度伸展活動';
+                                case '脾虛濕阻型':
+                                  return '建議控制澱粉攝取，增加低脂高蛋白，少量多餐，飯後適度散步';
+                                case '氣血虛弱型':
+                                  return '建議增加鐵質與蛋白質食物，小火慢燉食物更易吸收，適度補充維生素';
+                                case '胃熱濕阻型':
+                                  return '建議多食冷涼食物，減少油炸與辛辣，增加蔬果纖維，多喝水';
+                                case '腎陽虛痰濁型':
+                                  return '建議食物溫熱且容易消化，少飲冷飲，多攝取優質蛋白，避免過度勞累';
+                                default:
+                                  return '請根據體質特點調整飲食與生活習慣，並定期評估變化';
+                              }
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </Card>
+              </div>
+            </div>
+          )}
+          
+          {/* 會員資訊頁籤 */}
+          {consultationSubTab === 'memberInfo' && (
+            <MemberInfoCard 
+              fiveTypeData={currentFiveTypeData}
+              historicalFiveTypeData={historicalFiveTypeData}
+            />
+          )}
+          
+          {/* 數據分析頁籤 */}
+          {consultationSubTab === 'analysis' && (
+            <DataAnalysisCard 
+              weightRecords={weightRecords}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
           )}
         </div>
       )}
