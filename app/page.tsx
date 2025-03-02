@@ -154,28 +154,30 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, children, className = '' }) => {
   const [isHovered, setIsHovered] = useState(false);
+  // 使用新主題的 light 模式或根據使用者偏好動態選擇主題
   const colors = theme.light;
   
   const cardStyle = {
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: colors.border,
-    borderRadius: '10px',
+    borderWidth: '0px',
+    borderRadius: '16px',
     padding: '20px',
-    backgroundColor: colors.cardBackground,
-    boxShadow: isHovered ? `0 6px 12px ${colors.shadow}` : `0 4px 8px ${colors.shadow}`,
+    background: 'linear-gradient(135deg, #FFFFFF, #FFFFFF)', // 漸層背景
+    boxShadow: isHovered 
+      ? '0 12px 24px rgba(0, 0, 0, 0.2)' 
+      : '0 6px 12px rgba(0, 0, 0, 0.15)',
     marginBottom: '20px',
-    transition: 'box-shadow 0.3s ease-in-out',
+    transition: 'box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out',
+    transform: isHovered ? 'translateY(-4px)' : 'none',
   };
   
   const titleStyle: React.CSSProperties = {
     textAlign: 'center',
     marginBottom: '20px',
     paddingBottom: '10px',
-    borderBottom: `3px solid ${colors.primary}`,
+    borderBottom: `4px solid ${colors.primary}`,
     color: colors.primary,
-    fontSize: '1.5rem',
-    fontWeight: 'normal',
+    fontSize: '1.75rem',
+    fontWeight: 'bold',
   };
   
   return (
@@ -1118,7 +1120,7 @@ const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => 
                   fontWeight: '500',
                   color: '#495057'
                 }}>
-                  設定時間區間 (天數)
+                  設定時間區間 (距今幾天內-顯示最接近的起始日期)
                 </label>
               </div>
               
