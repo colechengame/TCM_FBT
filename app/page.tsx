@@ -11,6 +11,7 @@ import {
   Tooltip as ChartTooltip,
   Legend as ChartLegend,
   Filler,
+  ChartOptions,
 } from 'chart.js';
 import {
   Radar,
@@ -682,23 +683,28 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
     };
   }, [analysisResults]);
   
-  // Enhanced chart options
-  const analysisChartOptions = {
+  // ChartOptions type is already imported at the top
+
+  // 為 LineChart 指定 ChartOptions 型別
+  const analysisChartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: 'top', // 這裡 TypeScript 現在識別為字面量 "top"
         labels: {
           font: { size: 14 },
           usePointStyle: true,
           padding: 20,
         },
       },
-      title: { 
-        display: true, 
-        text: '體重與體組成變化分析', 
-        font: { size: 18, weight: 'normal' as const },
+      title: {
+        display: true,
+        text: '體重與體組成變化分析',
+        font: {
+          size: 18,
+          weight: 'normal' // 請確保這裡是字面量 "normal"
+        },
         padding: { bottom: 20 },
       },
       tooltip: {
@@ -706,20 +712,17 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: colors.dark,
         bodyColor: colors.dark,
-        titleFont: { weight: 'normal' as const },
+        titleFont: { weight: 'normal' },
         bodyFont: { size: 14 },
         padding: 12,
         cornerRadius: 6,
         borderColor: colors.border,
         borderWidth: 1,
-        boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
         displayColors: true,
         callbacks: {
-          label: function(context: { dataset: { label: string; }; parsed: { y: number; }; }) {
+          label: function(context) {
             let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
+            if (label) label += ': ';
             label += context.parsed.y.toFixed(1);
             return label;
           }
@@ -730,9 +733,9 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
       y: {
         beginAtZero: false,
         grid: {
-          color: 'rgba(0,0,0,0.05)',
-          borderDash: [5, 5],
-        },
+            color: 'rgba(0,0,0,0.05)',
+            borderDash: [5, 5],
+          },
         ticks: {
           font: { size: 14 },
           padding: 10,
@@ -741,23 +744,18 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
       x: {
         grid: { display: false },
         ticks: {
-          font: { size: 14, weight: 'normal' },
+          font: { size: 14,weight: 'normal' as const }, // 同樣確保 "normal" 為字面量
           padding: 10,
         },
       },
     },
     layout: {
-      padding: {
-        top: 10,
-        right: 20,
-        bottom: 10,
-        left: 20
-      }
+      padding: { top: 10, right: 20, bottom: 10, left: 20 },
     },
     elements: {
       line: { tension: 0.4 },
-      point: { 
-        radius: 6, 
+      point: {
+        radius: 6,
         hoverRadius: 9,
         borderWidth: 3,
         hoverBorderWidth: 4,
@@ -765,10 +763,10 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
     },
     animation: {
       duration: 1000,
-      easing: 'easeInOutQuad' as const
+      easing: 'easeInOutQuad' as const  // 可使用 as const 來保證字面量類型
     }
   };
-  
+    
   // Enhanced button component for date filtering
   const DateFilterButton: React.FC<{ days: number, label: string, currentStartDate: string, onClick: (days: number) => void }> = ({ days, label, currentStartDate, onClick }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -2234,14 +2232,13 @@ export default function Page() {
     };
   }
 
-  const bmrChartOptions: BmrChartOptions = {
-    responsive: true,
+  const bmrChartOptions: ChartOptions<'line'> = {    responsive: true,
     maintainAspectRatio: false,
     plugins: {
       title: {
         display: true,
         text: '基礎代謝率 (BMR) 趨勢',
-        font: { size: 16, weight: 'normal' },
+        font: { size: 16, weight: 'normal' as 'normal' | 'bold' | 'lighter' | 'bolder' },
         padding: { bottom: 20 },
       },
       tooltip: {
@@ -2252,15 +2249,14 @@ export default function Page() {
         borderWidth: 1,
         padding: 10,
         cornerRadius: 6,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
         callbacks: {
-          label: function (context) {
+          label: function (context: { parsed: { y: number }; dataset: { label?: string } }) {
             return `基礎代謝率: ${context.parsed.y} kcal/天`;
           },
         },
       },
       legend: {
-        position: 'top',
+        position: 'top' as const,
         labels: {
           usePointStyle: true,
           padding: 15,
