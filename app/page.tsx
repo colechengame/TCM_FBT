@@ -839,55 +839,69 @@ interface TabNavigationProps {
 }
 
 const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => {
+  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  // 當點擊頁籤時的處理函數
+  const handleTabClick = (tabId: string) => {
+    onTabChange(tabId);
+    // 使用 scrollIntoView 將選中的頁籤滾動到可見區域
+    tabRefs.current[tabId]?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center'
+    });
+  };
   return (
     <div style={{
       display: 'flex',
+      flexWrap: 'nowrap', 
       borderBottom: '1px solid #dee2e6',
       marginBottom: '20px',
       position: 'relative',
-      overflow: 'hidden'
+      whiteSpace: 'nowrap',     // 文字不換行
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch', // 在 iOS 上支援滑動慣性
+      gap: '8px',  // 增加頁籤之間的間距
+      padding: '0 4px' // 增加左右padding
     }}>
-      {tabs.map((tab: Tab) => (
+      {tabs.map((tab) => (
         <button
           key={tab.id}
-          onClick={() => onTabChange(tab.id)}
+          ref={(el) => { tabRefs.current[tab.id] = el; }} // 將按鈕元素存儲到 ref 中
+          onClick={() => handleTabClick(tab.id)} // 使用新的處理函數
           style={{
-            padding: '12px 20px',
+            padding: '12px 16px', // 調整內部padding
             borderRadius: '4px 4px 0 0',
             backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
             color: activeTab === tab.id ? '#007bff' : '#495057',
             border: 'none',
             borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
             cursor: 'pointer',
-            fontSize: '1rem',
+            fontSize: '0.9rem', // 稍微縮小字體
             fontWeight: activeTab === tab.id ? '600' : '400',
             transition: 'all 0.2s ease',
             position: 'relative',
             zIndex: 1,
-            minWidth: '120px',
+            minWidth: '100px', // 減少最小寬度
+            flex: '0 0 auto', // 防止擠壓
             textAlign: 'center',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            gap: '6px',
+            whiteSpace: 'normal' // 允許文字換行
           }}
-          onMouseOver={(e) => {
-            if (activeTab !== tab.id) {
-              e.currentTarget.style.backgroundColor = '#f8f9fa';
-              e.currentTarget.style.color = '#007bff';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (activeTab !== tab.id) {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#495057';
-            }
-          }}
+          // ...其他樣式保持不變
         >
           {tab.icon && (
-            <span>{tab.icon}</span>
+            <span style={{ flexShrink: 0 }}>{tab.icon}</span>
           )}
-          {tab.label}
+          <span style={{ 
+            fontSize: '0.85rem',
+            lineHeight: '1.2'
+          }}>
+            {tab.label}
+          </span>
         </button>
       ))}
       
@@ -1729,7 +1743,7 @@ export default function Page() {
   const [weightDataSubTab, setWeightDataSubTab] = useState('overview');
   
   // 營養諮詢區塊的子頁籤
-  const [consultationSubTab, setConsultationSubTab] = useState('records');
+  const [consultationSubTab, setConsultationSubTab] = useState('overview');
   
   // 趨勢圖顯示數據量選擇
   const [trendDataCount, setTrendDataCount] = useState(5);
@@ -1742,56 +1756,70 @@ export default function Page() {
   }
 
   const TabNavigation = ({ tabs, activeTab, onTabChange }: { tabs: Tab[], activeTab: string, onTabChange: (id: string) => void }) => {
+    const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+    // 當點擊頁籤時的處理函數
+    const handleTabClick = (tabId: string) => {
+      onTabChange(tabId);
+      // 使用 scrollIntoView 將選中的頁籤滾動到可見區域
+      tabRefs.current[tabId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center'
+      });
+    };  
     return (
       <div style={{
         display: 'flex',
+        flexWrap: 'nowrap', 
         borderBottom: '1px solid #dee2e6',
         marginBottom: '20px',
         position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onTabChange(tab.id)}
-            style={{
-              padding: '12px 20px',
-              borderRadius: '4px 4px 0 0',
-              backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
-              color: activeTab === tab.id ? '#007bff' : '#495057',
-              border: 'none',
-              borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: activeTab === tab.id ? '600' : '400',
-              transition: 'all 0.2s ease',
-              position: 'relative',
-              zIndex: 1,
-              minWidth: '120px',
-              textAlign: 'center',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
-            onMouseOver={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.backgroundColor = '#f8f9fa';
-                e.currentTarget.style.color = '#007bff';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#495057';
-              }
-            }}
-          >
-            {tab.icon && (
-              <span>{tab.icon}</span>
-            )}
+        whiteSpace: 'nowrap',     // 文字不換行
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch', // 在 iOS 上支援滑動慣性
+        gap: '8px',  // 增加頁籤之間的間距
+        padding: '0 4px' // 增加左右padding
+    }}>
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          ref={(el) => { tabRefs.current[tab.id] = el; }} // 將按鈕元素存儲到 ref 中
+          onClick={() => handleTabClick(tab.id)} // 使用新的處理函數
+          style={{
+            padding: '12px 16px', // 調整內部padding
+            borderRadius: '4px 4px 0 0',
+            backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+            color: activeTab === tab.id ? '#007bff' : '#495057',
+            border: 'none',
+            borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
+            cursor: 'pointer',
+            fontSize: '0.9rem', // 稍微縮小字體
+            fontWeight: activeTab === tab.id ? '600' : '400',
+            transition: 'all 0.2s ease',
+            position: 'relative',
+            zIndex: 1,
+            minWidth: '100px', // 減少最小寬度
+            flex: '0 0 auto', // 防止擠壓
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            whiteSpace: 'normal' // 允許文字換行
+          }}
+          // ...其他樣式保持不變
+        >
+          {tab.icon && (
+            <span style={{ flexShrink: 0 }}>{tab.icon}</span>
+          )}
+          <span style={{ 
+            fontSize: '0.85rem',
+            lineHeight: '1.2'
+          }}>
             {tab.label}
-          </button>
+          </span>
+        </button>
         ))}
         
         {/* 底部動畫指示器 */}
@@ -2545,68 +2573,85 @@ export default function Page() {
       {activeTab === 'weightData' && (
         <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
             <h1 style={{ 
-            textAlign: 'center',
-            color: colors.primary,
-            fontSize: '2rem',
-            marginBottom: '30px',
-            fontWeight: 'normal',
-            borderBottom: `3px solid ${colors.primary}`,
-            paddingBottom: '10px',
+              textAlign: 'center',
+              color: colors.primary,
+              fontSize: '2rem',
+              marginBottom: '30px',
+              fontWeight: 'normal',
+              borderBottom: `3px solid ${colors.primary}`,
+              paddingBottom: '10px',
             }}>
-            九大數據減重分析
+              九大數據減重分析
             </h1>
             
-            {/* 子頁籤導航 */}
-            <TabNavigation 
-            tabs={[
-              {
-              id: 'overview',
-              label: '整體概覽',
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* 子頁籤導航 - 支援左右滑動 */}
+            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}>
+              <TabNavigation 
+              tabs={[
+                {
+                id: 'overview',
+                label: '整體概覽',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="12" y1="8" x2="12" y2="12"></line>
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                   </svg>
-              },
-              {
-              id: 'records',
-              label: '數據記錄',
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                ),
+                },
+                {
+                id: 'records',
+                label: '數據記錄',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
                   <line x1="16" y1="13" x2="8" y2="13"></line>
                   <line x1="16" y1="17" x2="8" y2="17"></line>
                   <polyline points="10 9 9 9 8 9"></polyline>
                   </svg>
-              },
-              {
-              id: 'charts',
-              label: '趨勢圖表',
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                ),
+                },
+                {
+                id: 'charts',
+                label: '趨勢圖表',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10"></line>
                   <line x1="12" y1="20" x2="12" y2="4"></line>
                   <line x1="6" y1="20" x2="6" y2="14"></line>
                   </svg>
-              },
-              {
-              id: 'analysis',
-              label: '數據分析',
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                ),
+                },
+                {
+                id: 'analysis',
+                label: '數據分析',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                   </svg>
-              },
-              {
-              id: 'memberInfo',
-              label: '會員資訊',
-              icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                ),
+                },
+                {
+                id: 'memberInfo',
+                label: '會員資訊',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                   </svg>
-              }
-            ]}
-            activeTab={weightDataSubTab}
-            onTabChange={setWeightDataSubTab}
-            />
+                ),
+                },
+              ]}
+              activeTab={weightDataSubTab}
+              onTabChange={setWeightDataSubTab}
+              />
+            </div>
             
             {/* 整體概覽頁籤 */}
           {weightDataSubTab === 'overview' && (
