@@ -765,7 +765,7 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
     },
     animation: {
       duration: 1000,
-      easing: 'easeInOutQuad'
+      easing: 'easeInOutQuad' as const
     }
   };
   
@@ -2241,7 +2241,7 @@ export default function Page() {
       title: {
         display: true,
         text: '基礎代謝率 (BMR) 趨勢',
-        font: { size: 16, weight: 'normal' as const },
+        font: { size: 16, weight: 'normal' },
         padding: { bottom: 20 },
       },
       tooltip: {
