@@ -838,65 +838,65 @@ interface TabNavigationProps {
   onTabChange: (id: string) => void;
 }
 
-const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => {
+const TabNavigation = ({tabs,activeTab,onTabChange}: {tabs: Tab[],activeTab: string,onTabChange: (id: string) => void}) => {
+  // 建立一個 ref 物件，用來存放各個子頁籤按鈕
   const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
-
-  // 當點擊頁籤時的處理函數
+  // 當使用者點選某個子頁籤時，更新 activeTab 並讓該按鈕捲動到可見區域
   const handleTabClick = (tabId: string) => {
     onTabChange(tabId);
-    // 使用 scrollIntoView 將選中的頁籤滾動到可見區域
     tabRefs.current[tabId]?.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
       inline: 'center'
     });
   };
+
   return (
     <div style={{
       display: 'flex',
-      flexWrap: 'nowrap', 
+      flexWrap: 'nowrap',
       borderBottom: '1px solid #dee2e6',
       marginBottom: '20px',
       position: 'relative',
-      whiteSpace: 'nowrap',     // 文字不換行
+      whiteSpace: 'nowrap',
       overflowX: 'auto',
-      WebkitOverflowScrolling: 'touch', // 在 iOS 上支援滑動慣性
-      gap: '8px',  // 增加頁籤之間的間距
-      padding: '0 4px' // 增加左右padding
+      WebkitOverflowScrolling: 'touch',
+      gap: '8px',
+      padding: '0 4px'
     }}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          ref={(el) => { tabRefs.current[tab.id] = el; }} // 將按鈕元素存儲到 ref 中
-          onClick={() => handleTabClick(tab.id)} // 使用新的處理函數
+          // 將按鈕元素存入 ref 中
+          ref={(el) => { tabRefs.current[tab.id] = el; }}
+          onClick={() => handleTabClick(tab.id)}
           style={{
-            padding: '12px 16px', // 調整內部padding
+            padding: '12px 16px',
             borderRadius: '4px 4px 0 0',
             backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
             color: activeTab === tab.id ? '#007bff' : '#495057',
             border: 'none',
             borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
             cursor: 'pointer',
-            fontSize: '0.9rem', // 稍微縮小字體
+            fontSize: '0.9rem',
             fontWeight: activeTab === tab.id ? '600' : '400',
             transition: 'all 0.2s ease',
             position: 'relative',
             zIndex: 1,
-            minWidth: '100px', // 減少最小寬度
-            flex: '0 0 auto', // 防止擠壓
+            minWidth: '100px',
+            flex: '0 0 auto',
             textAlign: 'center',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
-            whiteSpace: 'normal' // 允許文字換行
+            whiteSpace: 'normal'
           }}
-          // ...其他樣式保持不變
         >
           {tab.icon && (
             <span style={{ flexShrink: 0 }}>{tab.icon}</span>
           )}
-          <span style={{ 
+          <span style={{
             fontSize: '0.85rem',
             lineHeight: '1.2'
           }}>
@@ -904,8 +904,7 @@ const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => 
           </span>
         </button>
       ))}
-      
-      {/* 底部動畫指示器 */}
+      {/* 底部動畫指示器，可根據 activeTab 的位置額外實作 */}
       <div style={{
         position: 'absolute',
         bottom: 0,
@@ -924,16 +923,321 @@ const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => 
   
   return (
     <Card title="減重數據分析">
-      <div style={{ marginBottom: '20px' }}>
-        <h3 style={{ 
-          margin: '0 0 15px 0',
-          fontSize: '1.1rem',
-          color: colors.dark
+<div style={{ marginBottom: '20px' }}>
+  <div style={{
+    backgroundColor: '#f8f9fa',
+    padding: '15px',
+    borderRadius: '8px',
+    boxShadow: 'inset 0 0 4px rgba(0,0,0,0.05)',
+    marginBottom: '20px'
+  }}>
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '15px'
+    }}>
+      <h3 style={{
+        margin: 0,
+        fontSize: '1.1rem',
+        color: colors.dark
+      }}>
+        自訂查詢時間範圍
+      </h3>
+      
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }}>
+        <p style={{
+          margin: 0,
+          fontSize: '0.85rem',
+          color: '#6c757d'
         }}>
-          分析時間範圍
-        </h3>
+          選擇一種方式設定時間範圍：使用起始日期或設定時間區間天數
+        </p>
         
-        <div style={{ display: 'flex', flexWrap: 'wrap', marginBottom: '15px' }}>
+        <button
+          onClick={() => {
+            onDateRangeChange({
+              startDate: '',
+              type: 'all',
+              days: 0
+            });
+            setCustomDate('');
+            setCustomDays('');
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            padding: '6px 12px',
+            backgroundColor: '#f0f0f0',
+            color: colors.dark,
+            border: '1px solid #ced4da',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '0.85rem',
+            whiteSpace: 'nowrap'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.backgroundColor = '#e2e6ea';
+            e.currentTarget.style.borderColor = '#dae0e5';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.backgroundColor = '#f0f0f0';
+            e.currentTarget.style.borderColor = '#ced4da';
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+          </svg>
+          重置所有篩選條件
+        </button>
+      </div>
+    </div>
+    
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '20px'
+    }}>
+      {/* 左側：選擇起始日期 */}
+      <div style={{
+        flex: '1 1 300px',
+        backgroundColor: 'white',
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #e6e6e6'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '12px',
+          gap: '6px'
+        }}>
+          <div style={{
+            backgroundColor: colors.primary,
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'normal'
+          }}>1</div>
+          <label htmlFor="customDateInput" style={{ 
+            fontWeight: '500',
+            color: '#495057'
+          }}>
+            選擇起始日期
+          </label>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center'
+        }}>
+          <input
+            id="customDateInput"
+            type="date"
+            value={customDate}
+            onChange={(e) => setCustomDate(e.target.value)}
+            style={{
+              padding: '10px',
+              borderRadius: '6px',
+              border: '1px solid #ced4da',
+              fontSize: '0.9rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              transition: 'all 0.2s ease',
+              flex: '1',
+              minWidth: '180px'
+            }}
+          />
+          
+          <button
+            onClick={() => {
+              if (customDate) {
+                onDateRangeChange({
+                  startDate: customDate,
+                  type: 'custom',
+                  days: 0
+                });
+                setCustomDays('');
+              }
+            }}
+            disabled={!customDate}
+            style={{
+              padding: '10px',
+              backgroundColor: customDate ? colors.primary : '#e9ecef',
+              color: customDate ? 'white' : '#6c757d',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: customDate ? 'pointer' : 'not-allowed',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseOver={(e) => {
+              if (customDate) {
+                e.currentTarget.style.backgroundColor = '#0069d9';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (customDate) {
+                e.currentTarget.style.backgroundColor = colors.primary;
+              }
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 10 4 15 9 20"></polyline>
+              <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      {/* 右側：設定時間區間天數 */}
+      <div style={{
+        flex: '1 1 300px',
+        backgroundColor: 'white',
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #e6e6e6'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '12px',
+          gap: '6px'
+        }}>
+          <div style={{
+            backgroundColor: colors.primary,
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'normal'
+          }}>2</div>
+          <label htmlFor="customDaysInput" style={{ 
+            fontWeight: '500',
+            color: '#495057'
+          }}>
+            設定時間區間 (距今幾天內)
+          </label>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          marginBottom: '10px'
+        }}>
+          <input
+            id="customDaysInput"
+            type="range"
+            min="1"
+            max="365"
+            value={customDays || "30"}
+            onChange={(e) => setCustomDays(e.target.value)}
+            style={{
+              flex: '1',
+              accentColor: colors.primary
+            }}
+          />
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <input
+              type="number"
+              min="1"
+              max="999"
+              value={customDays}
+              onChange={(e) => setCustomDays(e.target.value)}
+              placeholder="天數"
+              style={{
+                width: '70px',
+                padding: '10px',
+                borderRadius: '6px',
+                border: '1px solid #ced4da',
+                fontSize: '0.9rem',
+                textAlign: 'center'
+              }}
+            />
+            
+            <span style={{ fontSize: '0.9rem', color: '#6c757d' }}>天</span>
+            
+            <button
+              onClick={() => {
+                if (customDays && !isNaN(parseInt(customDays))) {
+                  const days = parseInt(customDays);
+                  const today = new Date();
+                  const startDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
+                  onDateRangeChange({
+                    startDate: startDate.toISOString().split('T')[0],
+                    type: 'days',
+                    days
+                  });
+                  setCustomDate('');
+                }
+              }}
+              disabled={!customDays || isNaN(parseInt(customDays))}
+              style={{
+                padding: '10px',
+                backgroundColor: customDays && !isNaN(parseInt(customDays)) ? colors.primary : '#e9ecef',
+                color: customDays && !isNaN(parseInt(customDays)) ? 'white' : '#6c757d',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: customDays && !isNaN(parseInt(customDays)) ? 'pointer' : 'not-allowed',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseOver={(e) => {
+                if (customDays && !isNaN(parseInt(customDays))) {
+                  e.currentTarget.style.backgroundColor = '#0069d9';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (customDays && !isNaN(parseInt(customDays))) {
+                  e.currentTarget.style.backgroundColor = colors.primary;
+                }
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 10 4 15 9 20"></polyline>
+                <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        {/* 快速選擇按鈕 */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '6px'
+        }}>
           {[
             { days: 7, label: '7天' },
             { days: 14, label: '14天' },
@@ -942,390 +1246,49 @@ const TabNavigation = ({ tabs, activeTab, onTabChange }: TabNavigationProps) => 
             { days: 90, label: '90天' },
             { days: 180, label: '半年' },
             { days: 365, label: '一年' },
-          ].map((option) => (
-            <DateFilterButton
-              key={option.days}
-              days={option.days}
-              label={option.label}
-              currentStartDate={dateRange.days === option.days ? option.days.toString() : ''}
-              onClick={(days: number) => {
+          ].map(day => (
+            <button
+              key={day.days}
+              onClick={() => {
+                setCustomDays(day.days.toString());
                 const today = new Date();
-                const startDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
+                const startDate = new Date(today.getTime() - day.days * 24 * 60 * 60 * 1000);
                 onDateRangeChange({
                   startDate: startDate.toISOString().split('T')[0],
                   type: 'days',
-                  days
-                });
-              }}
-            />
-          ))}
-        </div>
-        
-        <div style={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#f8f9fa',
-          padding: '15px',
-          borderRadius: '8px',
-          boxShadow: 'inset 0 0 4px rgba(0,0,0,0.05)',
-          marginBottom: '20px'
-        }}>
-          <div style={{
-            borderBottom: '1px solid #e0e0e0',
-            paddingBottom: '12px',
-            marginBottom: '15px'
-          }}>
-            <h4 style={{
-              margin: '0 0 10px 0',
-              fontSize: '1rem',
-              color: colors.dark,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#495057" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              自訂查詢時間範圍
-            </h4>
-            <p style={{
-              margin: '0',
-              fontSize: '0.85rem',
-              color: '#6c757d'
-            }}>
-              選擇一種方式設定時間範圍：使用起始日期或設定時間區間天數
-            </p>
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '24px'
-          }}>
-            {/* 起始日期選擇區塊 */}
-            <div style={{
-              flex: '1 1 300px',
-              backgroundColor: 'white',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #e6e6e6'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '12px',
-                gap: '6px'
-              }}>
-                <div style={{
-                  backgroundColor: colors.primary,
-                  width: '18px',
-                  height: '18px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '12px',
-                  fontWeight: 'normal'
-                }}>1</div>
-                <label htmlFor="customDateInput" style={{ 
-                  fontWeight: '500',
-                  color: '#495057'
-                }}>
-                  選擇起始日期
-                </label>
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'center'
-              }}>
-                <input
-                  id="customDateInput"
-                  type="date"
-                  value={customDate}
-                  onChange={(e) => setCustomDate(e.target.value)}
-                  style={{
-                    padding: '10px',
-                    borderRadius: '6px',
-                    border: '1px solid #ced4da',
-                    fontSize: '0.9rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                    transition: 'all 0.2s ease',
-                    flex: '1',
-                    minWidth: '180px'
-                  }}
-                />
-                
-                <button
-                  onClick={() => {
-                    if (customDate) {
-                      onDateRangeChange({
-                        startDate: customDate,
-                        type: 'custom',
-                        days: 0
-                      });
-                      setCustomDays('');
-                    }
-                  }}
-                  disabled={!customDate}
-                  style={{
-                    padding: '10px',
-                    backgroundColor: customDate ? colors.primary : '#e9ecef',
-                    color: customDate ? 'white' : '#6c757d',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: customDate ? 'pointer' : 'not-allowed',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onMouseOver={(e) => {
-                    if (customDate) {
-                      e.currentTarget.style.backgroundColor = '#0069d9';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (customDate) {
-                      e.currentTarget.style.backgroundColor = colors.primary;
-                    }
-                  }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 10 4 15 9 20"></polyline>
-                    <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            {/* 天數選擇區塊 */}
-            <div style={{
-              flex: '1 1 300px',
-              backgroundColor: 'white',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #e6e6e6'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '12px',
-                gap: '6px'
-              }}>
-                <div style={{
-                  backgroundColor: colors.primary,
-                  width: '18px',
-                  height: '18px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '12px',
-                  fontWeight: 'normal'
-                }}>2</div>
-                <label htmlFor="customDaysInput" style={{ 
-                  fontWeight: '500',
-                  color: '#495057'
-                }}>
-                  設定時間區間 (距今幾天內-顯示最接近的起始日期)
-                </label>
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                gap: '10px',
-                alignItems: 'center'
-              }}>
-                <input
-                  id="customDaysInput"
-                  type="range"
-                  min="1"
-                  max="365"
-                  value={customDays || "30"}
-                  onChange={(e) => setCustomDays(e.target.value)}
-                  style={{
-                    flex: '1',
-                    accentColor: colors.primary
-                  }}
-                />
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <input
-                    type="number"
-                    min="1"
-                    max="999"
-                    value={customDays}
-                    onChange={(e) => setCustomDays(e.target.value)}
-                    placeholder="天數"
-                    style={{
-                      width: '70px',
-                      padding: '10px',
-                      borderRadius: '6px',
-                      border: '1px solid #ced4da',
-                      fontSize: '0.9rem',
-                      textAlign: 'center'
-                    }}
-                  />
-                  
-                  <button
-                    onClick={() => {
-                      if (customDays && !isNaN(parseInt(customDays))) {
-                        const days = parseInt(customDays);
-                        const today = new Date();
-                        const startDate = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
-                        onDateRangeChange({
-                          startDate: startDate.toISOString().split('T')[0],
-                          type: 'days',
-                          days
-                        });
-                        setCustomDate('');
-                      }
-                    }}
-                    disabled={!customDays || isNaN(parseInt(customDays))}
-                    style={{
-                      padding: '10px',
-                      backgroundColor: customDays && !isNaN(parseInt(customDays)) ? colors.primary : '#e9ecef',
-                      color: customDays && !isNaN(parseInt(customDays)) ? 'white' : '#6c757d',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: customDays && !isNaN(parseInt(customDays)) ? 'pointer' : 'not-allowed',
-                      fontSize: '0.9rem',
-                      fontWeight: '500',
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    onMouseOver={(e) => {
-                      if (customDays && !isNaN(parseInt(customDays))) {
-                        e.currentTarget.style.backgroundColor = '#0069d9';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (customDays && !isNaN(parseInt(customDays))) {
-                        e.currentTarget.style.backgroundColor = colors.primary;
-                      }
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="9 10 4 15 9 20"></polyline>
-                      <path d="M20 4v7a4 4 0 0 1-4 4H4"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <div style={{
-                marginTop: '10px',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '6px'
-              }}>
-                {[7, 14, 30, 60, 90].map(day => (
-                  <button
-                    key={day}
-                    onClick={() => {
-                      setCustomDays(day.toString());
-                      const today = new Date();
-                      const startDate = new Date(today.getTime() - day * 24 * 60 * 60 * 1000);
-                      onDateRangeChange({
-                        startDate: startDate.toISOString().split('T')[0],
-                        type: 'days',
-                        days: day
-                      });
-                      setCustomDate('');
-                    }}
-                    style={{
-                      padding: '5px 10px',
-                      backgroundColor: dateRange.days === day ? colors.primary : '#e9ecef',
-                      color: dateRange.days === day ? 'white' : '#495057',
-                      border: 'none',
-                      borderRadius: '15px',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      if (dateRange.days !== day) {
-                        e.currentTarget.style.backgroundColor = '#dee2e6';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (dateRange.days !== day) {
-                        e.currentTarget.style.backgroundColor = '#e9ecef';
-                      }
-                    }}
-                  >
-                    {day}天
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          <div style={{
-            marginTop: '15px',
-            display: 'flex',
-            justifyContent: 'center'
-          }}>
-            <button
-              onClick={() => {
-                onDateRangeChange({
-                  startDate: '',
-                  type: 'all',
-                  days: 0
+                  days: day.days
                 });
                 setCustomDate('');
-                setCustomDays('');
               }}
               style={{
-                padding: '8px 15px',
-                backgroundColor: '#f0f0f0',
-                color: colors.dark,
-                border: '1px solid #ced4da',
-                borderRadius: '6px',
+                padding: '5px 10px',
+                backgroundColor: dateRange.days === day.days ? colors.primary : '#e9ecef',
+                color: dateRange.days === day.days ? 'white' : '#495057',
+                border: 'none',
+                borderRadius: '15px',
+                fontSize: '0.75rem',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: '500',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
+                transition: 'all 0.2s ease'
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#e2e6ea';
-                e.currentTarget.style.borderColor = '#dae0e5';
+                if (dateRange.days !== day.days) {
+                  e.currentTarget.style.backgroundColor = '#dee2e6';
+                }
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#f0f0f0';
-                e.currentTarget.style.borderColor = '#ced4da';
+                if (dateRange.days !== day.days) {
+                  e.currentTarget.style.backgroundColor = '#e9ecef';
+                }
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18"></path>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                <line x1="10" y1="11" x2="10" y2="17"></line>
-                <line x1="14" y1="11" x2="14" y2="17"></line>
-              </svg>
-              重置所有篩選條件
+              {day.label}
             </button>
-          </div>
+          ))}
         </div>
       </div>
-      
+    </div>
+  </div>
+</div>      
       {analysisResults ? (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
           {/* Left side: Metrics and indicators */}
@@ -1755,74 +1718,72 @@ export default function Page() {
     icon?: JSX.Element;
   }
 
-  const TabNavigation = ({ tabs, activeTab, onTabChange }: { tabs: Tab[], activeTab: string, onTabChange: (id: string) => void }) => {
+  const TabNavigation = ({tabs,activeTab,onTabChange}: {tabs: Tab[],activeTab: string,onTabChange: (id: string) => void}) => {
+    // 建立一個 ref 物件，用來存放各個子頁籤按鈕
     const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
-
-    // 當點擊頁籤時的處理函數
+    // 當使用者點選某個子頁籤時，更新 activeTab 並讓該按鈕捲動到可見區域
     const handleTabClick = (tabId: string) => {
       onTabChange(tabId);
-      // 使用 scrollIntoView 將選中的頁籤滾動到可見區域
       tabRefs.current[tabId]?.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
         inline: 'center'
       });
-    };  
+    };
     return (
       <div style={{
         display: 'flex',
-        flexWrap: 'nowrap', 
+        flexWrap: 'nowrap',
         borderBottom: '1px solid #dee2e6',
         marginBottom: '20px',
         position: 'relative',
-        whiteSpace: 'nowrap',     // 文字不換行
+        whiteSpace: 'nowrap',
         overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch', // 在 iOS 上支援滑動慣性
-        gap: '8px',  // 增加頁籤之間的間距
-        padding: '0 4px' // 增加左右padding
-    }}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          ref={(el) => { tabRefs.current[tab.id] = el; }} // 將按鈕元素存儲到 ref 中
-          onClick={() => handleTabClick(tab.id)} // 使用新的處理函數
-          style={{
-            padding: '12px 16px', // 調整內部padding
-            borderRadius: '4px 4px 0 0',
-            backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
-            color: activeTab === tab.id ? '#007bff' : '#495057',
-            border: 'none',
-            borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
-            cursor: 'pointer',
-            fontSize: '0.9rem', // 稍微縮小字體
-            fontWeight: activeTab === tab.id ? '600' : '400',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            zIndex: 1,
-            minWidth: '100px', // 減少最小寬度
-            flex: '0 0 auto', // 防止擠壓
-            textAlign: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            whiteSpace: 'normal' // 允許文字換行
-          }}
-          // ...其他樣式保持不變
-        >
-          {tab.icon && (
-            <span style={{ flexShrink: 0 }}>{tab.icon}</span>
-          )}
-          <span style={{ 
-            fontSize: '0.85rem',
-            lineHeight: '1.2'
-          }}>
-            {tab.label}
-          </span>
-        </button>
+        WebkitOverflowScrolling: 'touch',
+        gap: '8px',
+        padding: '0 4px'
+      }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            // 將按鈕元素存入 ref 中
+            ref={(el) => { tabRefs.current[tab.id] = el; }}
+            onClick={() => handleTabClick(tab.id)}
+            style={{
+              padding: '12px 16px',
+              borderRadius: '4px 4px 0 0',
+              backgroundColor: activeTab === tab.id ? 'white' : 'transparent',
+              color: activeTab === tab.id ? '#007bff' : '#495057',
+              border: 'none',
+              borderBottom: activeTab === tab.id ? '3px solid #007bff' : 'none',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: activeTab === tab.id ? '600' : '400',
+              transition: 'all 0.2s ease',
+              position: 'relative',
+              zIndex: 1,
+              minWidth: '100px',
+              flex: '0 0 auto',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              whiteSpace: 'normal'
+            }}
+          >
+            {tab.icon && (
+              <span style={{ flexShrink: 0 }}>{tab.icon}</span>
+            )}
+            <span style={{
+              fontSize: '0.85rem',
+              lineHeight: '1.2'
+            }}>
+              {tab.label}
+            </span>
+          </button>
         ))}
-        
-        {/* 底部動畫指示器 */}
+        {/* 底部動畫指示器，可根據 activeTab 的位置額外實作 */}
         <div style={{
           position: 'absolute',
           bottom: 0,
@@ -1834,7 +1795,7 @@ export default function Page() {
       </div>
     );
   };
-  
+    
   // Sample data initialization
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([
     { id: 1, date: '2024-10-10', bmi: 27.5, weight: 90, bodyFat: 36, visceralFat: 10, waterRate: 55, muscleMass: 40, boneMineral: 3.2, bmr: 1500 },
