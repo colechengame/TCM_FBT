@@ -2442,11 +2442,12 @@ export default function Page() {
     <div style={containerStyle}>
       {/* Main navigation */}
       <div style={{ 
+        whiteSpace: 'nowrap',     // 文字不換行
         display: 'flex', 
         justifyContent: 'center', 
-        marginBottom: '30px',
+        marginBottom: '1px',
         backgroundColor: '#f8f9fa',
-        padding: '15px',
+        padding: '1px',
         borderRadius: '15px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
       }}>
@@ -2479,7 +2480,7 @@ export default function Page() {
           <div style={{
             display: 'flex',
             alignItems: 'center', 
-            gap: '8px'
+            gap: '5px'
           }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
@@ -2514,6 +2515,7 @@ export default function Page() {
           }}
         >
           <div style={{
+             whiteSpace: 'nowrap',     // 文字不換行
             display: 'flex',
             alignItems: 'center', 
             gap: '8px'
