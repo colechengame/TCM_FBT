@@ -733,9 +733,9 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
       y: {
         beginAtZero: false,
         grid: {
-            color: 'rgba(0,0,0,0.05)',
-            borderDash: [5, 5],
-          },
+          color: 'rgba(0,0,0,0.05)',
+          lineWidth: 1,         
+        },
         ticks: {
           font: { size: 14 },
           padding: 10,
@@ -2065,7 +2065,8 @@ export default function Page() {
         position: 'left' as const,
         grid: {
           color: 'rgba(0,0,0,0.05)',
-          borderDash: [3, 3],
+          drawBorder: false,
+          lineWidth: 1,
         },
         ticks: { font: { size: 12 } },
         title: {
@@ -2139,7 +2140,8 @@ export default function Page() {
         position: 'left' as const,
         grid: {
           color: 'rgba(0,0,0,0.05)',
-          borderDash: [3, 3],
+          drawBorder: false,
+          lineWidth: 1,
         },
         ticks: { font: { size: 12 } },
         title: {
@@ -2211,11 +2213,11 @@ export default function Page() {
     };
     scales: {
       y: {
-        beginAtZero: boolean;
+        beginAtZero: true,
         grid: {
-          color: string;
-          borderDash: number[];
-        };
+          color: 'rgba(0,0,0,0.05)',
+          borderDash: [],
+        },
         ticks: {
           font: { size: number };
           callback: (value: number) => string;
@@ -2269,7 +2271,7 @@ export default function Page() {
         beginAtZero: false,
         grid: {
           color: 'rgba(0,0,0,0.05)',
-          borderDash: [3, 3],
+          lineWidth: 1,
         },
         ticks: {
           font: { size: 12 },
