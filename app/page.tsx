@@ -439,7 +439,7 @@ const MemberInfoCard: React.FC<{ fiveTypeData: FiveTypeRecord[], historicalFiveT
                     maintainAspectRatio: false,
                     plugins: {
                       legend: {
-                        position: 'top',
+                        position: 'top' as const,
                         labels: { 
                           font: { size: 12 },
                           usePointStyle: true,
@@ -449,14 +449,14 @@ const MemberInfoCard: React.FC<{ fiveTypeData: FiveTypeRecord[], historicalFiveT
                       title: { 
                         display: true, 
                         text: '五型體質歷史數據趨勢', 
-                        font: { size: 16, weight: 'normal' },
+                        font: { size: 16, weight: 'normal' as const },
                         padding: { bottom: 15 }
                       },
                       tooltip: {
                         backgroundColor: 'rgba(255,255,255,0.95)',
                         titleColor: colors.dark,
                         bodyColor: colors.dark,
-                        titleFont: { weight: 'normal' },
+                        titleFont: { weight: 'normal' as const },
                         bodyFont: { size: 13 },
                         padding: 10,
                         cornerRadius: 6,
@@ -688,9 +688,9 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'top' as const,
         labels: {
-          font: { size: 14, weight: 'normal' },
+          font: { size: 14 },
           usePointStyle: true,
           padding: 20,
         },
@@ -698,7 +698,7 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
       title: { 
         display: true, 
         text: '體重與體組成變化分析', 
-        font: { size: 18, weight: 'normal' },
+        font: { size: 18, weight: 'normal' as const },
         padding: { bottom: 20 },
       },
       tooltip: {
@@ -706,7 +706,7 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: colors.dark,
         bodyColor: colors.dark,
-        titleFont: { weight: 'normal' },
+        titleFont: { weight: 'normal' as const },
         bodyFont: { size: 14 },
         padding: 12,
         cornerRadius: 6,
@@ -765,7 +765,7 @@ const DataAnalysisCard: React.FC<{ weightRecords: WeightRecord[], dateRange: { s
     },
     animation: {
       duration: 1000,
-      easing: 'easeInOutQuad' as 'easeInOutQuad'
+      easing: 'easeInOutQuad'
     }
   };
   
@@ -2040,7 +2040,7 @@ export default function Page() {
         padding: { bottom: 20 },
       },
       tooltip: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: '#333',
@@ -2052,7 +2052,7 @@ export default function Page() {
         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
       },
       legend: {
-        position: 'top',
+        position: 'top' as const,
         labels: {
           usePointStyle: true,
           padding: 15,
@@ -2062,9 +2062,9 @@ export default function Page() {
     },
     scales: {
       y: {
-        type: 'linear',
+        type: 'linear' as const,
         display: true,
-        position: 'left',
+        position: 'left' as const,
         grid: {
           color: 'rgba(0,0,0,0.05)',
           borderDash: [3, 3],
@@ -2114,7 +2114,7 @@ export default function Page() {
         padding: { bottom: 20 },
       },
       tooltip: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
         backgroundColor: 'rgba(255,255,255,0.95)',
         titleColor: '#333',
@@ -2126,7 +2126,7 @@ export default function Page() {
         boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
       },
       legend: {
-        position: 'top',
+        position: 'top' as const,
         labels: {
           usePointStyle: true,
           padding: 15,
@@ -2136,9 +2136,9 @@ export default function Page() {
     },
     scales: {
       y: {
-        type: 'linear',
+        type: 'linear' as const,
         display: true,
-        position: 'left',
+        position: 'left' as const,
         grid: {
           color: 'rgba(0,0,0,0.05)',
           borderDash: [3, 3],
@@ -2151,9 +2151,9 @@ export default function Page() {
         }
       },
       y1: {
-        type: 'linear',
+        type: 'linear' as const,
         display: true,
-        position: 'right',
+        position: 'right' as const,
         grid: {
           drawOnChartArea: false,
         },
@@ -2174,7 +2174,7 @@ export default function Page() {
       }
     },
     interaction: {
-      mode: 'index',
+      mode: 'index' as const,
       intersect: false,
     },
   };
@@ -2241,7 +2241,7 @@ export default function Page() {
       title: {
         display: true,
         text: '基礎代謝率 (BMR) 趨勢',
-        font: { size: 16, weight: 'normal' },
+        font: { size: 16, weight: 'normal' as const },
         padding: { bottom: 20 },
       },
       tooltip: {
