@@ -1347,11 +1347,11 @@ const TabNavigation = ({tabs,activeTab,onTabChange}: {tabs: Tab[],activeTab: str
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span>體重變化</span>
-                  <span style={{ 
+                  <span style={{
                     fontWeight: 'normal',
-                    color: analysisResults.weightChange > 0 ? colors.danger : colors.success
+                    color: analysisResults.weightChange > 0 ? colors.success : colors.danger
                   }}>
-                    {analysisResults.weightChange > 0 ? '+' : ''}{analysisResults.weightChange} kg
+                    {analysisResults.weightChange > 0 ? '-' : '+'}{Math.abs(analysisResults.weightChange)} kg
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
