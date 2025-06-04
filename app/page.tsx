@@ -12,6 +12,7 @@ import {
   Legend as ChartLegend,
   Filler,
   ChartOptions,
+  ChartData,
 } from 'chart.js';
 import {
   Radar,
@@ -207,22 +208,28 @@ const MemberInfoCard: React.FC<{ fiveTypeData: FiveTypeRecord[], historicalFiveT
   }, [fiveTypeData]);
 
   // Chart options for the five type history line chart
-  const lineChartFiveTypeData = {
-    labels: historicalFiveTypeData.map((item: { date: any; }) => item.date),
-    datasets: Object.keys(historicalFiveTypeData[0])
-      .filter(key => key !== 'date')
-      .map((key, index) => ({
-        label: key,
-        data: historicalFiveTypeData.map((item: { [x: string]: any; }) => item[key]),
-        borderColor: colors.chartColors[index % colors.chartColors.length],
-        backgroundColor: colors.chartColors[index % colors.chartColors.length].replace('0.6', '0.1'),
-        fill: false,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-      })),
-  };
+  const lineChartFiveTypeData: ChartData<'line'> = useMemo(() => {
+    if (historicalFiveTypeData.length === 0) {
+      return { labels: [], datasets: [] };
+    }
+
+    return {
+      labels: historicalFiveTypeData.map((item) => item.date),
+      datasets: Object.keys(historicalFiveTypeData[0])
+        .filter(key => key !== 'date')
+        .map((key, index) => ({
+          label: key,
+          data: historicalFiveTypeData.map(item => item[key] as number),
+          borderColor: colors.chartColors[index % colors.chartColors.length],
+          backgroundColor: colors.chartColors[index % colors.chartColors.length].replace('0.6', '0.1'),
+          fill: false,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        }))
+    };
+  }, [historicalFiveTypeData]);
   
   const buttonStyle = {
     borderWidth: '1px',
